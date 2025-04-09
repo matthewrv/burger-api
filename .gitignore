@@ -1,6 +1,10 @@
 # Python cache files
 __pycache__
 *.pyc
+.ruff_cache
 
 # Python virtual environment
 .venv
+
+# Sensitive data
+.env

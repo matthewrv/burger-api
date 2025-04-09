@@ -4,6 +4,7 @@ in pkgs.mkShell {
   packages = [
     pkgs.python313
     pkgs.uv
+    pkgs.python312Packages.ruff
   ];
   shellHook = ''
     export VENV_DIR=.venv
