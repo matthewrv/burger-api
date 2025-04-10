@@ -1,8 +1,10 @@
 from pydantic import UUID4, BaseModel, Field
 from sqlmodel import insert, select
+
+from app.app import app
 from app.di import SessionDep
 from db.ingredient import Ingredient
-from app.app import app
+
 from .models import IngredientItem
 
 
