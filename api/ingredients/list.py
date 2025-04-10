@@ -1,12 +1,11 @@
-import json
+from sqlmodel import select
 
 from app.app import app
-
-# load once on application start
-with open("assets/ingredients.json") as f:
-    ingredients_response = json.load(f)
+from app.di import SessionDep
+from db.ingredient import Ingredient
+from .models import IngredientItem
 
 
 @app.get("/api/ingredients")
-async def get_ingredients():
-    return ingredients_response
+async def get_ingredients(db: SessionDep) -> list[IngredientItem]:
+    return db.exec(select(Ingredient)).all()
