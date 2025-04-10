@@ -3,6 +3,9 @@ __pycache__
 *.pyc
 .ruff_cache
 
+# Testing data
+db.sqlite
+
 # Python virtual environment
 .venv
 

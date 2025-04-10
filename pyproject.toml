@@ -5,8 +5,12 @@ description = "Backend implementation for Stellar Burgers web-app"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiosqlite>=0.21.0",
+    "alembic>=1.15.2",
     "fastapi[standard]>=0.115.12",
     "pydantic-settings>=2.8.1",
+    "sqlalchemy>=2.0.40",
+    "sqlmodel>=0.0.24",
 ]
 
 [dependency-groups]
