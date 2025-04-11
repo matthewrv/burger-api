@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     allow_origins: list[str] | None
     port: int | None
     db_connection: str
+    secret_key: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -2,6 +2,7 @@ from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import Engine
 from sqlmodel import Session, create_engine
 
@@ -21,3 +22,7 @@ def get_session(engine: Annotated[Engine, Depends(connect_to_db)]):
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+TokenDep = Annotated[str, Depends(oauth2_scheme)]
