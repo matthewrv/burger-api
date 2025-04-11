@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware import cors
 from sqlmodel import SQLModel
 
+from api import api_router
+
 from .config import settings
 from .di import connect_to_db
 
@@ -17,3 +19,4 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(cors.CORSMiddleware, allow_origins=settings.allow_origins)
+app.include_router(api_router)

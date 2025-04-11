@@ -1,10 +1,10 @@
-from pydantic import UUID4, BaseModel, Field
-from sqlmodel import insert, select
+from pydantic import BaseModel
+from sqlmodel import insert
 
-from app.app import app
 from app.di import SessionDep
 from db.ingredient import Ingredient
 
+from ..router import api_router
 from .models import IngredientItem
 
 
@@ -12,7 +12,7 @@ class AddIngredientResponse(BaseModel):
     id: str
 
 
-@app.put("/api/ingredients", response_model=AddIngredientResponse)
+@api_router.put("/ingredients", response_model=AddIngredientResponse)
 async def add_ingredient(ingredient: IngredientItem, db: SessionDep) -> IngredientItem:
     test_dict = ingredient.model_dump()
     print(test_dict)

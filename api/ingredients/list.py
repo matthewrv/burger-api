@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 from sqlmodel import select
 
-from app.app import app
 from app.di import SessionDep
 from db.ingredient import Ingredient
 
+from ..router import api_router
 from .models import IngredientItem
 
 
@@ -13,7 +13,7 @@ class IngredientsListResponse(BaseModel):
     data: list[IngredientItem]
 
 
-@app.get("/api/ingredients", response_model=IngredientsListResponse)
+@api_router.get("/ingredients", response_model=IngredientsListResponse)
 async def get_ingredients(db: SessionDep):
     ingredients = db.exec(select(Ingredient)).all()
     return {"success": True, "data": ingredients}

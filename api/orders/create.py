@@ -3,9 +3,10 @@ from uuid import uuid4
 
 from pydantic import UUID4, BaseModel, Field
 
-from app.app import app
 from app.di import SessionDep
 from db.order import Order as DbOrder
+
+from ..router import api_router
 
 
 class OrderCreateRequest(BaseModel):
@@ -17,7 +18,7 @@ class OrderCreateResponse(BaseModel):
     number: int
 
 
-@app.post("/api/orders", response_model=OrderCreateResponse)
+@api_router.post("/orders", response_model=OrderCreateResponse)
 async def create_order(order: OrderCreateRequest, session: SessionDep) -> DbOrder:
     with session.begin():
         dbOrder = DbOrder(
