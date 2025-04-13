@@ -30,11 +30,23 @@ fastapi dev
 
 После этого можно дёргать ручки по адресу http://localhost:8000
 
-### Скрипты
+### Pleh.sh
 
-В директории `scripts` есть скрипты для целей тестов и отладки. Пример запуска
+В репозитории содержится bash скрипт со всякими полезностями.
+
+#### Запуск скриптов
+
+С помощью pleh.sh можно скрипты из директории `scripts`. Пример запуска
 скрипта для добавления ингридиентов в базу данных:
 
 ```bash
-PYTHONPATH=$PWD:$PYTHONPATH python scripts/load_default_ingredients.py
+./pleh.sh run scripts/load_default_ingredients.py
+```
+
+#### Запуск тестов
+
+Для запуска тестов pytest можно выполнить команду
+
+```bash
+./pleh.sh test
 ```
