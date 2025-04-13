@@ -15,4 +15,4 @@ class User(SQLModel, table=True):
     )
 
     def __repr__(self):
-        return f"User(id={self.id}, username={self.username}, email={self.email})"
+        return f"User(id={self.id}, username={self.name}, email={self.email})"

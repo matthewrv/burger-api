@@ -2,8 +2,9 @@ import uuid
 
 from pydantic import BaseModel, Field
 
+from api.auth.models import AuthResponse
 from app import security
-from app.di import SessionDep
+from app.db import SessionDep
 from db.user import User
 
 from ..router import api_router
@@ -15,13 +16,8 @@ class RegisterUserRequest(BaseModel):
     password: str = Field(max_length=30, min_length=8)
 
 
-class RegisterUserResponse(BaseModel):
-    name: str
-    email: str
-
-
-@api_router.post("/auth/register", response_model=RegisterUserResponse)
-async def register_user(user: RegisterUserRequest, db: SessionDep):
+@api_router.post("/auth/register")
+async def register_user(user: RegisterUserRequest, db: SessionDep) -> AuthResponse:
     db_user = User(
         id=uuid.uuid4(),
         name=user.name,
@@ -32,4 +28,7 @@ async def register_user(user: RegisterUserRequest, db: SessionDep):
     with db.begin():
         db.add(db_user)
 
-    return db_user
+    token = security.create_access_token(db_user)
+    return AuthResponse(
+        user=db_user.model_dump(), accessToken=f'Bearer {token}', refreshToken=token
+    )

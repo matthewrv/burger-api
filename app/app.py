@@ -7,7 +7,7 @@ from sqlmodel import SQLModel
 from api import api_router
 
 from .config import settings
-from .di import connect_to_db
+from .db import connect_to_db
 
 
 @asynccontextmanager

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from sqlmodel import select
 
-from app.di import SessionDep
+from app.db import SessionDep
 from db.ingredient import Ingredient
 
 from ..router import api_router

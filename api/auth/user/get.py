@@ -1,15 +1,15 @@
 from pydantic import BaseModel
 
-from app.di import TokenDep
+from app import security
 
 from ...router import api_router
+from ..models import User
 
 
 class GetUserResponse(BaseModel):
-    name: str
-    email: str
+    user: User
 
 
-@api_router.get("/auth/user", response_model=GetUserResponse)
-async def get_user(token: TokenDep):
-    return {"name": "test_user", "email": "test@example.com"}
+@api_router.get("/auth/user")
+async def get_user(user: security.UserDep) -> GetUserResponse:
+    return GetUserResponse(user=User.model_validate(user))

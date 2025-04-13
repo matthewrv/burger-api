@@ -6,7 +6,7 @@ import json
 
 from sqlmodel import Session, insert
 
-from app.di import connect_to_db
+from app.db import connect_to_db
 from db import Ingredient, SQLModel
 
 

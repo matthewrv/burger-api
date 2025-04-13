@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from pydantic import UUID4, BaseModel, Field
 
-from app.di import SessionDep
+from app.db import SessionDep
 from db.order import Order as DbOrder
 
 from ..router import api_router

@@ -4,7 +4,7 @@ from pydantic import UUID4, BaseModel
 from sqlalchemy import desc
 from sqlmodel import select
 
-from app.di import SessionDep
+from app.db import SessionDep
 from db.order import Order as DbOrder
 
 from ..router import api_router

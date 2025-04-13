@@ -2,8 +2,9 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel
 from sqlmodel import select
 
+from api.auth.models import AuthResponse
 from app import security
-from app.di import SessionDep
+from app.db import SessionDep
 from db.user import User
 
 from ..router import api_router
@@ -14,13 +15,8 @@ class LoginRequst(BaseModel):
     password: str
 
 
-class LoginResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-
-
-@api_router.post("/auth/login", response_model=LoginResponse)
-async def login(request: LoginRequst, db: SessionDep):
+@api_router.post("/auth/login")
+async def login(request: LoginRequst, db: SessionDep) -> AuthResponse:
     with db.begin():
         user = db.exec(select(User).where(User.email == request.email)).first()
 
@@ -36,6 +32,7 @@ async def login(request: LoginRequst, db: SessionDep):
             detail="Incorrect username or password",
         )
 
-    token = "mock token"
-    refresh_token = "mock refresh token"
-    return {"access_token": f"Bearer {token}", "refresh_token": refresh_token}
+    token = security.create_access_token(user)
+    return AuthResponse(
+        user=user.model_dump(), accessToken=f"Bearer {token}", refreshToken=token
+    )
