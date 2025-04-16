@@ -30,5 +30,5 @@ async def register_user(user: RegisterUserRequest, db: SessionDep) -> AuthRespon
 
     token = security.create_access_token(db_user)
     return AuthResponse(
-        user=db_user.model_dump(), accessToken=f'Bearer {token}', refreshToken=token
+        user=db_user.model_dump(), accessToken=f"Bearer {token}", refreshToken=token
     )

@@ -13,7 +13,7 @@ from db.user import User
 from .config import settings
 
 # Parameters for JWT tokens
-# to get a string like this run:
+# to get a string for secret key run this command:
 # openssl rand -hex 32
 SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"

@@ -12,4 +12,4 @@ class GetUserResponse(BaseModel):
 
 @api_router.get("/auth/user")
 async def get_user(user: security.UserDep) -> GetUserResponse:
-    return GetUserResponse(user=User.model_validate(user))
+    return GetUserResponse(user=User.model_validate(user, from_attributes=True))
