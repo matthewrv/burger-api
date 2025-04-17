@@ -11,7 +11,9 @@ from db import Ingredient, SQLModel
 
 
 def transform_to_db_model(json_model):
-    return Ingredient.model_construct(**json_model, id=json_model["_id"]).model_dump()
+    kwargs = json_model.copy()
+    kwargs.pop("_id")
+    return Ingredient.model_construct(**kwargs).model_dump()
 
 
 def main():

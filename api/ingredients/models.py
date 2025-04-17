@@ -1,10 +1,10 @@
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 __all__ = ("IngredientItem",)
 
 
 class IngredientItem(BaseModel):
-    id: str = Field(max_length=255, serialization_alias="_id")
+    id: UUID4 = Field(serialization_alias="_id")
     name: str = Field(max_length=255)
     type: str
     proteins: int

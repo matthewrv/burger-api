@@ -1,7 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import UUID4
 from sqlmodel import UUID, Field, SQLModel
+
+from .utils import utc_now
 
 
 class User(SQLModel, table=True):
@@ -9,9 +11,9 @@ class User(SQLModel, table=True):
     name: str = Field()
     email: str = Field(index=True, unique=True)
     password_hash: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(
-        default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow}
+        default_factory=utc_now, sa_column_kwargs={"onupdate": utc_now}
     )
 
     def __repr__(self):

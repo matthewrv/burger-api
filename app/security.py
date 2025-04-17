@@ -39,7 +39,9 @@ def get_password_hash(password: str) -> str:
 
 def raise_auth_exception():
     raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        # FIXME 403 is for compatibility with old frontend version
+        # need to update frontend and backend
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
