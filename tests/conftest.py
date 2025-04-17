@@ -1,5 +1,6 @@
 import uuid
 
+from pydantic import BaseModel
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, SQLModel, StaticPool, create_engine, text
@@ -15,7 +16,7 @@ def get_session():
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
     )
     SQLModel.metadata.create_all(engine)
-    with Session(engine) as session:
+    with Session(engine, expire_on_commit=False, autobegin=False) as session:
         yield session
 
 
@@ -31,24 +32,30 @@ def get_client(session: Session):
     app.dependency_overrides.clear()
 
 
-TEST_USER_ID = uuid.UUID("0f854aa6-30d9-4525-806f-aad3cdaa2e18")
-TEST_USER_PASSWORD = "12345678"
+class SampleUser(BaseModel):
+    id: uuid.UUID
+    name: str
+    email: str
+    password: str
 
 
 @pytest.fixture(name="test_user")
 def add_test_user(session: Session):
-    test_name = "test"
-    test_email = "test@example.com"
-    test_password = TEST_USER_PASSWORD
-
-    test_user = User(
-        id=TEST_USER_ID,
-        name=test_name,
-        email=test_email,
-        password_hash=security.get_password_hash(test_password),
+    test_user = SampleUser(
+        id=uuid.UUID("0f854aa6-30d9-4525-806f-aad3cdaa2e18"),
+        name = "test",
+        email = "test@example.com",
+        password = "12345678",
     )
 
-    copy = test_user.model_copy()
-    session.add(test_user)
-    session.commit()
-    yield copy
+    with session.begin():
+        db_user = User(
+            id=test_user.id,
+            name=test_user.name,
+            email=test_user.email,
+            password_hash=security.get_password_hash(test_user.password),
+        )
+
+        session.add(db_user)
+
+    yield test_user

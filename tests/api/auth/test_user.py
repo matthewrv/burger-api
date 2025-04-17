@@ -1,10 +1,10 @@
 from fastapi.testclient import TestClient
 
 from app import security
-from db.user import User
+from tests.conftest import SampleUser
 
 
-def test_get_user(client: TestClient, test_user: User):
+def test_get_user(client: TestClient, test_user: SampleUser):
     token = security.create_access_token(test_user)
     response = client.get(
         "/api/auth/user", headers={"Authorization": f"Bearer {token}"}

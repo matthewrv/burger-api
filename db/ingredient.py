@@ -1,5 +1,4 @@
-from pydantic import UUID4
-from sqlmodel import UUID, Field, SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class Ingredient(SQLModel, table=True):

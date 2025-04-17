@@ -18,7 +18,8 @@ def connect_to_db() -> Engine:
 
 
 def get_session(engine: Annotated[Engine, Depends(connect_to_db)]):
-    with Session(engine) as session:
+    # give developer full control over transactions - this is how it should be
+    with Session(engine, expire_on_commit=False, autobegin=False) as session:
         yield session
 
 
