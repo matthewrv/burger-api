@@ -1,8 +1,8 @@
 import uuid
 
-from pydantic import BaseModel
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, StaticPool, create_engine, text
 
 from app import db, security
@@ -43,9 +43,9 @@ class SampleUser(BaseModel):
 def add_test_user(session: Session):
     test_user = SampleUser(
         id=uuid.UUID("0f854aa6-30d9-4525-806f-aad3cdaa2e18"),
-        name = "test",
-        email = "test@example.com",
-        password = "12345678",
+        name="test",
+        email="test@example.com",
+        password="12345678",
     )
 
     with session.begin():

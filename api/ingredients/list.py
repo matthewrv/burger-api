@@ -17,5 +17,7 @@ class IngredientsListResponse(BaseModel):
 
 @api_router.get("/ingredients", response_model=IngredientsListResponse)
 async def get_ingredients(db: SessionDep):
-    ingredients = db.exec(select(Ingredient)).all()
+    with db.begin():
+        ingredients = db.exec(select(Ingredient)).all()
+
     return {"success": True, "data": ingredients}
