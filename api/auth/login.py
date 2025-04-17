@@ -7,16 +7,18 @@ from app import security
 from app.db import SessionDep
 from db.user import User
 
-from ..router import api_router
+from .router import auth_router
+
+__all__ = ("LoginRequest", "login", "AuthResponse")
 
 
-class LoginRequst(BaseModel):
+class LoginRequest(BaseModel):
     email: str
     password: str
 
 
-@api_router.post("/auth/login")
-async def login(request: LoginRequst, db: SessionDep) -> AuthResponse:
+@auth_router.post("/login")
+async def login(request: LoginRequest, db: SessionDep) -> AuthResponse:
     with db.begin():
         user = db.exec(select(User).where(User.email == request.email)).first()
 

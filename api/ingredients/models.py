@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+__all__ = ("IngredientItem",)
+
 
 class IngredientItem(BaseModel):
     id: str = Field(max_length=255, serialization_alias="_id")

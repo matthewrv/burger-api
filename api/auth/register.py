@@ -7,7 +7,9 @@ from app import security
 from app.db import SessionDep
 from db.user import User
 
-from ..router import api_router
+from .router import auth_router
+
+__all__ = ("RegisterUserRequest", "register_user", "AuthResponse")
 
 
 class RegisterUserRequest(BaseModel):
@@ -16,7 +18,7 @@ class RegisterUserRequest(BaseModel):
     password: str = Field(max_length=30, min_length=8)
 
 
-@api_router.post("/auth/register")
+@auth_router.post("/register")
 async def register_user(user: RegisterUserRequest, db: SessionDep) -> AuthResponse:
     db_user = User(
         id=uuid.uuid4(),

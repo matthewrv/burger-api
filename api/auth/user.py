@@ -2,14 +2,16 @@ from pydantic import BaseModel
 
 from app import security
 
-from ...router import api_router
-from ..models import User
+from .models import User
+from .router import auth_router
+
+__all__ = ("GetUserResponse", "get_user")
 
 
 class GetUserResponse(BaseModel):
     user: User
 
 
-@api_router.get("/auth/user")
+@auth_router.get("/user")
 async def get_user(user: security.UserDep) -> GetUserResponse:
     return GetUserResponse(user=User.model_validate(user, from_attributes=True))

@@ -7,6 +7,8 @@ from db.ingredient import Ingredient
 from ..router import api_router
 from .models import IngredientItem
 
+__all__ = ("AddIngredientResponse", "add_ingredient", "IngredientItem")
+
 
 class AddIngredientResponse(BaseModel):
     id: str
