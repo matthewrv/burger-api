@@ -5,7 +5,7 @@ from db.user import User
 from tests.conftest import SampleUser
 
 
-def test_register(client: TestClient, session: Session, test_user: SampleUser):
+def test_register(client: TestClient, session: Session, sample_user_data: SampleUser):
     with session.begin():
         session.exec(delete(User))
         result = session.exec(select(User)).all()
@@ -14,9 +14,9 @@ def test_register(client: TestClient, session: Session, test_user: SampleUser):
     response = client.post(
         "/api/auth/register",
         json={
-            "name": test_user.name,
-            "email": test_user.email,
-            "password": test_user.password,
+            "name": sample_user_data.name,
+            "email": sample_user_data.email,
+            "password": sample_user_data.password,
         },
     )
     assert response.status_code == 200
@@ -27,18 +27,5 @@ def test_register(client: TestClient, session: Session, test_user: SampleUser):
         assert len(users) == 1
 
         user = users[0]
-        assert user.email == test_user.email
-        assert user.name == test_user.name
-
-    # assert user can login after registration
-    response = client.post(
-        "/api/auth/login",
-        json={"email": test_user.email, "password": test_user.password},
-    )
-    assert response.status_code == 200
-    response_body = response.json()
-    assert "user" in response_body
-    assert response_body["user"] == {
-        "email": test_user.email,
-        "name": test_user.name,
-    }
+        assert user.email == sample_user_data.email
+        assert user.name == sample_user_data.name

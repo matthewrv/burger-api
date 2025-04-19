@@ -1,11 +1,11 @@
 import uuid
-from uuid import UUID
 
+from pydantic import UUID4
 from sqlmodel import Field, SQLModel
 
 
 class Ingredient(SQLModel, table=True):
-    id: UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    id: UUID4 = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(max_length=255)
     type: str
     proteins: int

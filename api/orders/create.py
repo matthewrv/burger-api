@@ -25,6 +25,7 @@ class CreatedOrder(BaseModel):
     id: UUID4
     number: int
 
+
 class OrderCreateResponse(BaseModel):
     order: CreatedOrder
 
@@ -76,4 +77,4 @@ async def create_order(
         ]
         session.add_all(order_ingredients)
 
-    return {'order': dbOrder}
+    return {"order": dbOrder}

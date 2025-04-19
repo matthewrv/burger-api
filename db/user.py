@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from pydantic import UUID4
 from sqlmodel import UUID, Field, SQLModel
@@ -15,6 +15,8 @@ class User(SQLModel, table=True):
     updated_at: datetime = Field(
         default_factory=utc_now, sa_column_kwargs={"onupdate": utc_now}
     )
+    refresh_token_hash: str | None = None
+    logout_at: datetime | None = None
 
     def __repr__(self):
         return f"User(id={self.id}, username={self.name}, email={self.email})"

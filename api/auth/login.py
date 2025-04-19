@@ -34,7 +34,11 @@ async def login(request: LoginRequest, db: SessionDep) -> AuthResponse:
             detail="Incorrect username or password",
         )
 
-    token = security.create_access_token(user)
+    access_token, refresh_token = security.rotate_user_tokens(db, user)
+
     return AuthResponse(
-        user=user.model_dump(), accessToken=f"Bearer {token}", refreshToken=token
+        success=True,
+        user=user.model_dump(),
+        accessToken=f"Bearer {access_token}",
+        refreshToken=refresh_token,
     )

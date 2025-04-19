@@ -1,10 +1,13 @@
+import uuid
+
 from pydantic import UUID4, BaseModel, Field
+from sqlmodel import UUID
 
 __all__ = ("IngredientItem",)
 
 
 class IngredientItem(BaseModel):
-    id: UUID4 = Field(serialization_alias="_id")
+    id: UUID4 = Field(default_factory=uuid.uuid4, serialization_alias="_id")
     name: str = Field(max_length=255)
     type: str
     proteins: int

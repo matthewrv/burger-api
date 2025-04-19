@@ -10,6 +10,7 @@ class User(BaseModel):
 
 
 class AuthResponse(BaseModel):
+    success: bool
     user: User
     access_token: str
     refresh_token: str
