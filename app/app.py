@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware import cors
@@ -11,7 +12,7 @@ from .db import connect_to_db
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     engine = connect_to_db()
     SQLModel.metadata.create_all(engine)
     yield

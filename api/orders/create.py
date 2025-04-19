@@ -1,6 +1,3 @@
-import datetime
-from uuid import uuid4
-
 from fastapi import status
 from fastapi.responses import JSONResponse
 from pydantic import UUID4, BaseModel, Field
@@ -42,7 +39,7 @@ class OrderCreateFailResponse(BaseModel):
 )
 async def create_order(
     order: OrderCreateRequest, session: SessionDep, user: UserDep
-) -> DbOrder:
+) -> dict[str, DbOrder] | JSONResponse:
     with session.begin():
         ingredients = session.exec(
             select(Ingredient).where(col(Ingredient.id).in_(order.ingredients))

@@ -2,11 +2,11 @@ from fastapi import HTTPException, status
 from pydantic import BaseModel
 from sqlmodel import select
 
-from api.auth.models import AuthResponse
 from app import security
 from app.db import SessionDep
-from db.user import User
+from db.user import User as DbUser
 
+from .models import AuthResponse, User
 from .router import auth_router
 
 __all__ = ("LoginRequest", "login", "AuthResponse")
@@ -20,7 +20,7 @@ class LoginRequest(BaseModel):
 @auth_router.post("/login")
 async def login(request: LoginRequest, db: SessionDep) -> AuthResponse:
     with db.begin():
-        user = db.exec(select(User).where(User.email == request.email)).first()
+        user = db.exec(select(DbUser).where(DbUser.email == request.email)).first()
 
     if not user:
         raise HTTPException(
@@ -38,7 +38,7 @@ async def login(request: LoginRequest, db: SessionDep) -> AuthResponse:
 
     return AuthResponse(
         success=True,
-        user=user.model_dump(),
+        user=User.model_validate(user, from_attributes=True),
         accessToken=f"Bearer {access_token}",
         refreshToken=refresh_token,
     )

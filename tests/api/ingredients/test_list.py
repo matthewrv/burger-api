@@ -6,7 +6,7 @@ from sqlmodel import Session
 from db.ingredient import Ingredient
 
 
-def test_ingredients_list(session: Session, client: TestClient):
+def test_ingredients_list(session: Session, client: TestClient) -> None:
     test_ingredient = Ingredient(
         id=UUID("cae4fd2b-43d4-4e2d-9181-640c1e165ccd"),
         name="test",

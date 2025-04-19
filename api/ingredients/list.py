@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel
 from sqlmodel import select
 
@@ -16,7 +18,7 @@ class IngredientsListResponse(BaseModel):
 
 
 @api_router.get("/ingredients", response_model=IngredientsListResponse)
-async def get_ingredients(db: SessionDep):
+async def get_ingredients(db: SessionDep) -> dict[str, Any]:
     with db.begin():
         ingredients = db.exec(select(Ingredient)).all()
 

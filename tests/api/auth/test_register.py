@@ -5,9 +5,10 @@ from db.user import User
 from tests.conftest import SampleUser
 
 
-def test_register(client: TestClient, session: Session, sample_user_data: SampleUser):
+def test_register(
+    client: TestClient, session: Session, sample_user_data: SampleUser
+) -> None:
     with session.begin():
-        session.exec(delete(User))
         result = session.exec(select(User)).all()
         assert len(result) == 0, f"Expected no users in db, but got {len(result)}"
 

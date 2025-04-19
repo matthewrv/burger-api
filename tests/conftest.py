@@ -1,4 +1,5 @@
 import uuid
+from typing import Generator
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,7 +12,7 @@ from db.user import User
 
 
 @pytest.fixture(name="session")
-def get_session():
+def get_session() -> Generator[Session, None, None]:
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
     )
@@ -21,8 +22,8 @@ def get_session():
 
 
 @pytest.fixture(name="client")
-def get_client(session: Session):
-    def get_session_override():
+def get_client(session: Session) -> Generator[TestClient, None, None]:
+    def get_session_override() -> Session:
         return session
 
     app.dependency_overrides[db.get_session] = get_session_override
@@ -41,7 +42,7 @@ class SampleUser(BaseModel):
 
 
 @pytest.fixture(name="sample_user_data")
-def get_sample_user_data():
+def get_sample_user_data() -> SampleUser:
     test_user = SampleUser(
         id=uuid.UUID("0f854aa6-30d9-4525-806f-aad3cdaa2e18"),
         name="test",
@@ -54,7 +55,7 @@ def get_sample_user_data():
 
 
 @pytest.fixture(name="test_user")
-def add_test_user(session: Session, sample_user_data: SampleUser):
+def add_test_user(session: Session, sample_user_data: SampleUser) -> SampleUser:
     with session.begin():
         db_user = User(
             id=sample_user_data.id,
@@ -68,4 +69,4 @@ def add_test_user(session: Session, sample_user_data: SampleUser):
 
         session.add(db_user)
 
-    yield sample_user_data
+    return sample_user_data

@@ -21,6 +21,7 @@ case $COMMAND in
         
     "test")
         echo "Running tests..."
+        mypy .
         pytest $@
         ;;
 

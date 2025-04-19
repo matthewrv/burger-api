@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     @field_validator("allow_origins", mode="before")
     @classmethod
-    def decode_allow_origins(cls, v: str) -> list[int] | None:
+    def decode_allow_origins(cls, v: str) -> list[str] | None:
         if not v:
             return None
         return [x for x in v.split(",")]

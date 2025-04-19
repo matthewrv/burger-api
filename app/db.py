@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, Generator
 
 from fastapi import Depends
 from sqlalchemy import Engine
@@ -17,7 +17,9 @@ def connect_to_db() -> Engine:
     )
 
 
-def get_session(engine: Annotated[Engine, Depends(connect_to_db)]):
+def get_session(
+    engine: Annotated[Engine, Depends(connect_to_db)],
+) -> Generator[Session, None, None]:
     # give developer full control over transactions - this is how it should be
     with Session(engine, expire_on_commit=False, autobegin=False) as session:
         yield session

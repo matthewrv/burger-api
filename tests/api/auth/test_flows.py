@@ -10,7 +10,7 @@ from tests.conftest import SampleUser
 
 def test_full_auth_flow(
     client: TestClient, session: Session, sample_user_data: SampleUser
-):
+) -> None:
     with session.begin():
         result = session.exec(select(User)).all()
         assert len(result) == 0, f"Expected no users in db, but got {len(result)}"

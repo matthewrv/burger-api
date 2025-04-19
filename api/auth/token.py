@@ -2,7 +2,7 @@ from app import security
 from app.db import SessionDep
 from app.security import UserByRefreshTokenDep
 
-from .models import AuthResponse
+from .models import AuthResponse, User
 from .router import auth_router
 
 
@@ -14,7 +14,7 @@ async def update_access_token(
 
     return AuthResponse(
         success=True,
-        user=user.model_dump(),
+        user=User.model_validate(user, from_attributes=True),
         accessToken=f"Bearer {access_token}",
         refreshToken=refresh_token,
     )

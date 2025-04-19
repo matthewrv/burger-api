@@ -15,8 +15,8 @@ class User(SQLModel, table=True):
     updated_at: datetime = Field(
         default_factory=utc_now, sa_column_kwargs={"onupdate": utc_now}
     )
-    refresh_token_hash: str | None = None
+    refresh_token_hash: str | None
     logout_at: datetime | None = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"User(id={self.id}, username={self.name}, email={self.email})"

@@ -1,3 +1,4 @@
+import typing
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
@@ -40,7 +41,7 @@ def get_password_hash(password: str) -> str:
     ).decode("utf-8")
 
 
-def raise_auth_exception():
+def raise_auth_exception() -> None:
     raise HTTPException(
         # FIXME 403 is for compatibility with old frontend version
         # need to update frontend and backend
@@ -50,17 +51,21 @@ def raise_auth_exception():
     )
 
 
-def create_access_token(user: User) -> str:
+class UserLike(typing.Protocol):
+    email: str
+
+
+def create_access_token(user: UserLike) -> str:
     expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     return create_token(user, expires_delta)
 
 
-def create_refresh_token(user: User) -> str:
+def create_refresh_token(user: UserLike) -> str:
     expires_delta = timedelta(hours=REFRESH_TOKEN_EXPIRE_HOURS)
     return create_token(user, expires_delta)
 
 
-def create_token(user: User, expires_delta: timedelta) -> str:
+def create_token(user: UserLike, expires_delta: timedelta) -> str:
     now = datetime.now(timezone.utc)
     to_encode = {"sub": user.email, "exp": now + expires_delta, "iat": now}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -85,6 +90,7 @@ async def get_current_user(db: SessionDep, token: TokenDep) -> User:
     if user is None or user.refresh_token_hash is None:
         raise_auth_exception()
 
+    assert isinstance(user, User)  # assert to satisfy mypy
     issued_at = datetime.fromtimestamp(payload.get("iat"), timezone.utc).replace(
         tzinfo=None
     )
@@ -102,8 +108,11 @@ async def validate_refresh_token(
     db: SessionDep, request: RequestWithRefreshToken
 ) -> User:
     db_user = await get_current_user(db, request.token)
-    is_valid_refresh_token = verify_password(request.token, db_user.refresh_token_hash)
+    expected_hash = db_user.refresh_token_hash
 
+    is_valid_refresh_token = expected_hash and verify_password(
+        request.token, expected_hash
+    )
     if not is_valid_refresh_token:
         raise_auth_exception()
 
@@ -114,7 +123,7 @@ UserDep = Annotated[User, Depends(get_current_user)]
 UserByRefreshTokenDep = Annotated[User, Depends(validate_refresh_token)]
 
 
-def rotate_user_tokens(db: Session, user: User):
+def rotate_user_tokens(db: Session, user: User) -> tuple[str, str]:
     # remove microseconds since we do not store them in JWT
     now = utc_now().replace(microsecond=0)
     refresh_token = create_refresh_token(user)
