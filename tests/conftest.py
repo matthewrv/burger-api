@@ -8,6 +8,7 @@ from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
 from app import db, security
 from app.app import app
+from db.ingredient import Ingredient
 from db.user import User
 
 
@@ -70,3 +71,37 @@ def add_test_user(session: Session, sample_user_data: SampleUser) -> SampleUser:
         session.add(db_user)
 
     return sample_user_data
+
+
+@pytest.fixture(name="ingredients")
+def add_test_ingredients(session: Session) -> list[Ingredient]:
+    common_params = {
+        "proteins": 100,
+        "fat": 100,
+        "carbohydrates": 100,
+        "calories": 33,
+        "price": 200,
+        "image": "https://example.com/img.png",
+        "image_large": "https://example.com/img.png",
+        "image_mobile": "https://example.com/img.png",
+        "burger_word": "тестовый",
+    }
+    with session.begin():
+        ingredients = [
+            Ingredient.model_validate(
+                {
+                    "name": "Булка",
+                    "type": "bun",
+                    **common_params,
+                }
+            ),
+            Ingredient.model_validate(
+                {"name": "Соус", "type": "sauce", **common_params},
+            ),
+            Ingredient.model_validate(
+                {"name": "Котлета", "type": "main", **common_params},
+            ),
+        ]
+        session.add_all(ingredients)
+
+    return ingredients
