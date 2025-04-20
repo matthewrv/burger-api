@@ -113,6 +113,7 @@ dependencies = [
     { name = "pyjwt" },
     { name = "sqlalchemy" },
     { name = "sqlmodel" },
+    { name = "websockets" },
 ]
 
 [package.dev-dependencies]
@@ -131,6 +132,7 @@ requires-dist = [
     { name = "pyjwt", specifier = ">=2.10.1" },
     { name = "sqlalchemy", specifier = ">=2.0.40" },
     { name = "sqlmodel", specifier = ">=0.0.24" },
+    { name = "websockets", specifier = ">=15.0.1" },
 ]
 
 [package.metadata.requires-dev]

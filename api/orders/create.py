@@ -1,15 +1,13 @@
-from fastapi import status
+from fastapi import BackgroundTasks, status
 from fastapi.responses import JSONResponse
 from pydantic import UUID4, BaseModel, Field
-from sqlmodel import col, select
 
-from app.db import SessionDep
+from app.repo.common import Error as RepoError
+from app.repo.orders import OrderFull, OrdersRepoDep
 from app.security import UserDep
-from db.ingredient import Ingredient
-from db.order import Order as DbOrder
-from db.order_ingredient import OrderIngredient
 
 from ..router import api_router
+from .list import manager
 
 __all__ = ("OrderCreateRequest", "OrderCreateResponse", "create_order")
 
@@ -38,40 +36,21 @@ class OrderCreateFailResponse(BaseModel):
     responses={422: {"model": OrderCreateFailResponse}},
 )
 async def create_order(
-    order: OrderCreateRequest, session: SessionDep, user: UserDep
-) -> dict[str, DbOrder] | JSONResponse:
-    with session.begin():
-        ingredients = session.exec(
-            select(Ingredient).where(col(Ingredient.id).in_(order.ingredients))
-        ).all()
-        ingredients_map = {ingredient.id: ingredient for ingredient in ingredients}
+    order: OrderCreateRequest,
+    user: UserDep,
+    background_tasks: BackgroundTasks,
+    orders_repo: OrdersRepoDep,
+) -> dict[str, OrderFull] | JSONResponse:
+    result = orders_repo.create_order(
+        ingredient_ids=order.ingredients,
+        user=user,
+    )
 
-        if len(ingredients_map) < len(set(order.ingredients)):
-            return JSONResponse(
-                {"success": False, "error": "unknown ingredients"},
-                status.HTTP_422_UNPROCESSABLE_ENTITY,
-            )
-
-        # use dict for deduplicating ingredients
-        adjectives = {
-            ingredients_map[ingredient].burger_word: ""
-            for ingredient in order.ingredients
-        }
-        name = " ".join(adjectives | {"бургер": ""})
-        name = name.capitalize()
-
-        dbOrder = DbOrder(
-            name=name,
-            number=0,  # FIXME generate serial number
-            owner_id=user.id,
-            status="pending",
+    if isinstance(result, RepoError):
+        return JSONResponse(
+            {"success": False, "error": result.message},
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
-        session.add(dbOrder)
 
-        order_ingredients = [
-            OrderIngredient(order_id=dbOrder.id, ingredient_id=ingredient.id)
-            for ingredient in ingredients
-        ]
-        session.add_all(order_ingredients)
-
-    return {"order": dbOrder}
+    background_tasks.add_task(manager.broadcast_order, result)
+    return {"order": result}

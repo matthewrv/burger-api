@@ -1,10 +1,8 @@
 from typing import Any
 
 from pydantic import BaseModel
-from sqlmodel import select
 
-from app.db import SessionDep
-from db.ingredient import Ingredient
+from app.repo.ingredients import IngredientsRepoDep
 
 from ..router import api_router
 from .models import IngredientItem
@@ -18,8 +16,6 @@ class IngredientsListResponse(BaseModel):
 
 
 @api_router.get("/ingredients", response_model=IngredientsListResponse)
-async def get_ingredients(db: SessionDep) -> dict[str, Any]:
-    with db.begin():
-        ingredients = db.exec(select(Ingredient)).all()
-
+async def get_ingredients(ingredients_repo: IngredientsRepoDep) -> dict[str, Any]:
+    ingredients = ingredients_repo.get_all_active_ingredients()
     return {"success": True, "data": ingredients}
