@@ -9,6 +9,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
+from sqlalchemy import Engine
 from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
 from app import db, security
@@ -20,7 +21,7 @@ from db.user import User
 @pytest.fixture(name="app")
 def get_test_app() -> Generator[FastAPI]:
     @lru_cache
-    def connect_to_db():
+    def connect_to_db() -> Engine:
         engine = create_engine(
             "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
         )
@@ -122,7 +123,9 @@ def add_test_ingredients(session: Session) -> list[Ingredient]:
 
 
 @pytest.fixture(autouse=True)
-def mock_uuid_generation():
+def mock_uuid_generation() -> Generator[
+    unittest.mock.MagicMock | unittest.mock.AsyncMock
+]:
     predefined_uuids = [
         uuid.UUID("2d75d3fa-bf09-450a-bcb6-5067648b01e8"),
         uuid.UUID("0c46c950-ef05-41a4-ba2b-d3224bfd4e2e"),
@@ -141,7 +144,9 @@ def mock_uuid_generation():
 
 
 @pytest.fixture(autouse=True)
-def mock_utc_now(request):
+def mock_utc_now(
+    request: pytest.FixtureRequest,
+) -> Generator[None | unittest.mock.MagicMock | unittest.mock.AsyncMock]:
     mark = request.node.get_closest_marker("now")
     if mark:
         value, *_ = mark.args

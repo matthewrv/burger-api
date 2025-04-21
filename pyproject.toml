@@ -24,6 +24,7 @@ dev = [
 ]
 
 [tool.mypy]
+mypy_path = "./stubs/"
 plugins = ["pydantic.mypy"]
 
 follow_imports = "silent"

@@ -1,4 +1,5 @@
 import datetime
+import typing
 
 from fastapi import WebSocket, WebSocketDisconnect
 from pydantic import UUID4, BaseModel, Field
@@ -24,12 +25,12 @@ class WebSocketOrderNotifier(OrderSubscriber):
         self._websocket = websocket
         self._connected = False
 
-    async def connect(self):
+    async def connect(self) -> None:
         if not self._connected:
             await self._websocket.accept()
             self._connected = True
 
-    async def notify(self, recent_orders: list[dict]) -> None:
+    async def notify(self, recent_orders: dict[str, typing.Any]) -> None:
         await self._websocket.send_json(recent_orders)
 
 

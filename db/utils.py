@@ -9,7 +9,7 @@ def utc_now() -> datetime:
     return _utc_now()
 
 
-def _utc_now():
+def _utc_now() -> datetime:
     """This function is mocked in tests."""
     return datetime.now(timezone.utc)
 

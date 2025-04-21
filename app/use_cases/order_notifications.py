@@ -2,6 +2,7 @@ import abc
 import collections
 import datetime
 import logging
+import typing
 from contextlib import contextmanager
 from functools import lru_cache
 from typing import Annotated, Any
@@ -31,7 +32,9 @@ class OrderListItem(BaseModel):
     status: str
 
     @classmethod
-    def from_order_full(cls, order: OrderFull):
+    def from_order_full(
+        cls: type["OrderListItem"], order: OrderFull
+    ) -> "OrderListItem":
         return cls.model_validate(order, from_attributes=True, by_name=True)
 
 
@@ -42,7 +45,7 @@ class OrderSubscriber(abc.ABC):
 
 
 class OrderNotificationManager:
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine) -> None:
         session_context = contextmanager(get_session)
         with session_context(engine) as session:
             ingredients_repo = IngredientsRepo(session)
@@ -54,14 +57,14 @@ class OrderNotificationManager:
         )
         self._subscribers: list[OrderSubscriber] = []
 
-    async def sub(self, subscriber: OrderSubscriber):
+    async def sub(self, subscriber: OrderSubscriber) -> None:
         self._subscribers.append(subscriber)
         await subscriber.notify(self.get_message())
 
-    def unsub(self, subscriber: OrderSubscriber):
+    def unsub(self, subscriber: OrderSubscriber) -> None:
         self._subscribers.remove(subscriber)
 
-    async def pub(self, new_order: OrderFull):
+    async def pub(self, new_order: OrderFull) -> None:
         self.__orders.appendleft(OrderListItem.from_order_full(new_order))
         if len(self.__orders) > 50:
             self.__orders.pop()
@@ -85,7 +88,7 @@ class OrderNotificationManager:
 
 
 @lru_cache
-def get_order_notifications(engine: EngineDep):
+def get_order_notifications(engine: EngineDep) -> OrderNotificationManager:
     return OrderNotificationManager(engine)
 
 
