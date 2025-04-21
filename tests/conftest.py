@@ -1,37 +1,51 @@
+import datetime
+import unittest.mock
 import uuid
+from contextlib import contextmanager
+from functools import lru_cache
 from typing import Generator
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
 from app import db, security
-from app.app import app
+from app.app import create_app
 from db.ingredient import Ingredient
 from db.user import User
 
 
+@pytest.fixture(name="app")
+def get_test_app() -> Generator[FastAPI]:
+    @lru_cache
+    def connect_to_db():
+        engine = create_engine(
+            "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+        )
+        SQLModel.metadata.create_all(engine)
+        return engine
+
+    app = create_app()
+    app.dependency_overrides[db.connect_to_db] = connect_to_db
+
+    yield app
+
+    app.dependency_overrides.clear()
+
+
 @pytest.fixture(name="session")
-def get_session() -> Generator[Session, None, None]:
-    engine = create_engine(
-        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-    )
-    SQLModel.metadata.create_all(engine)
-    with Session(engine, expire_on_commit=False, autobegin=False) as session:
+def get_session(app: FastAPI) -> Generator[Session, None, None]:
+    session_context = contextmanager(db.get_session)
+    engine = app.dependency_overrides[db.connect_to_db]()
+    with session_context(engine) as session:
         yield session
 
 
 @pytest.fixture(name="client")
-def get_client(session: Session) -> Generator[TestClient, None, None]:
-    def get_session_override() -> Session:
-        return session
-
-    app.dependency_overrides[db.get_session] = get_session_override
-
-    client = TestClient(app)
-    yield client
-    app.dependency_overrides.clear()
+def get_client(app: FastAPI, session: Session) -> Generator[TestClient, None, None]:
+    yield TestClient(app)
 
 
 class SampleUser(BaseModel):
@@ -105,3 +119,34 @@ def add_test_ingredients(session: Session) -> list[Ingredient]:
         session.add_all(ingredients)
 
     return ingredients
+
+
+@pytest.fixture(autouse=True)
+def mock_uuid_generation():
+    predefined_uuids = [
+        uuid.UUID("2d75d3fa-bf09-450a-bcb6-5067648b01e8"),
+        uuid.UUID("0c46c950-ef05-41a4-ba2b-d3224bfd4e2e"),
+        uuid.UUID("f8ceba02-7bf4-484b-9df0-f527134fdc83"),
+        uuid.UUID("da6d00b6-c692-4fa9-8624-479a13c30c7f"),
+        uuid.UUID("e5853fe5-148e-4cde-bc63-2a9272d52884"),
+        uuid.UUID("ca519bc6-87fb-461f-a959-d023c859aef5"),
+        uuid.UUID("d20ed67c-f257-4ed5-a911-082529e0ca2a"),
+        uuid.UUID("595fc04d-3e59-4470-ac16-5d0ca9ac6dbe"),
+        uuid.UUID("d41f987d-5969-4129-b2a0-589236c2e9a4"),
+        uuid.UUID("c870c128-5949-4f28-b00d-4a0aac87e184"),
+    ]
+
+    with unittest.mock.patch("uuid.uuid4", side_effect=predefined_uuids) as mock:
+        yield mock
+
+
+@pytest.fixture(autouse=True)
+def mock_utc_now(request):
+    mark = request.node.get_closest_marker("now")
+    if mark:
+        value, *_ = mark.args
+        now = datetime.datetime.fromisoformat(value)
+        with unittest.mock.patch("db.utils._utc_now", return_value=now) as mock:
+            yield mock
+    else:
+        yield None

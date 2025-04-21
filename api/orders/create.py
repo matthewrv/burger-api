@@ -5,9 +5,9 @@ from pydantic import UUID4, BaseModel, Field
 from app.repo.common import Error as RepoError
 from app.repo.orders import OrderFull, OrdersRepoDep
 from app.security import UserDep
+from app.use_cases.order_notifications import NotificationDep
 
 from ..router import api_router
-from .list import manager
 
 __all__ = ("OrderCreateRequest", "OrderCreateResponse", "create_order")
 
@@ -40,6 +40,7 @@ async def create_order(
     user: UserDep,
     background_tasks: BackgroundTasks,
     orders_repo: OrdersRepoDep,
+    order_notifications: NotificationDep,
 ) -> dict[str, OrderFull] | JSONResponse:
     result = orders_repo.create_order(
         ingredient_ids=order.ingredients,
@@ -52,5 +53,5 @@ async def create_order(
             status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
-    background_tasks.add_task(manager.broadcast_order, result)
+    background_tasks.add_task(order_notifications.pub, result)
     return {"order": result}

@@ -7,7 +7,7 @@ from sqlmodel import Session, create_engine
 
 from .config import settings
 
-__all__ = "SessionDep"
+__all__ = ("SessionDep", "EngineDep")
 
 
 @lru_cache
@@ -17,8 +17,11 @@ def connect_to_db() -> Engine:
     )
 
 
+EngineDep = Annotated[Engine, Depends(connect_to_db)]
+
+
 def get_session(
-    engine: Annotated[Engine, Depends(connect_to_db)],
+    engine: EngineDep,
 ) -> Generator[Session, None, None]:
     # give developer full control over transactions - this is how it should be
     with Session(engine, expire_on_commit=False, autobegin=False) as session:

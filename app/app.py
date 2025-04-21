@@ -18,11 +18,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
 
-app = FastAPI(lifespan=lifespan)
-app.add_middleware(
-    cors.CORSMiddleware,
-    allow_origins=settings.allow_origins,
-    allow_headers="*",
-    allow_methods="*",
-)
-app.include_router(api_router)
+def create_app() -> FastAPI:
+    app = FastAPI(lifespan=lifespan)
+    app.add_middleware(
+        cors.CORSMiddleware,
+        allow_origins=settings.allow_origins,
+        allow_headers="*",
+        allow_methods="*",
+    )
+    app.include_router(api_router)
+
+    return app
