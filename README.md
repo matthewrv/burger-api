@@ -2,6 +2,8 @@
 
 Бекенд для веб-приложения [Stellar Burgers](https://github.com/matthewrv/react-burger).
 
+⚠️ Work In Progress
+
 ## Разработка
 
 ### Начало работы
