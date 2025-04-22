@@ -40,10 +40,18 @@ class OrdersRepo(BaseRepo):
         self._ingredients_repo = ingredients_repo
 
     @as_transaction
-    def get_recent_orders_full(self, limit: int = 50) -> list[OrderFull]:
-        orders = self._session.exec(
-            select(DbOrder).order_by(desc(DbOrder.created_at)).limit(limit)
-        ).all()
+    def get_recent_orders_full(
+        self, limit: int = 50, user: User | None = None
+    ) -> list[OrderFull]:
+        query = select(DbOrder).order_by(desc(DbOrder.created_at)).limit(limit)
+        if user:
+            query = (
+                select(DbOrder)
+                .where(col(DbOrder.owner_id) == user.id)
+                .order_by(desc(DbOrder.created_at))
+                .limit(limit)
+            )
+        orders = self._session.exec(query).all()
 
         order_ids = [order.id for order in orders]
         ingredients = self._session.exec(

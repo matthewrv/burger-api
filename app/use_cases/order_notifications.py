@@ -1,19 +1,13 @@
 import abc
-import collections
 import datetime
 import logging
-import typing
-from contextlib import contextmanager
 from functools import lru_cache
 from typing import Annotated, Any
 
 from fastapi import Depends
 from pydantic import UUID4, BaseModel, Field
-from sqlalchemy import Engine
 
-from app.db import EngineDep, get_session
-from app.repo.ingredients import IngredientsRepo
-from app.repo.orders import OrderFull, OrdersRepo
+from app.repo.orders import OrderFull
 
 __all__ = (
     "OrderListItem",
@@ -24,7 +18,7 @@ __all__ = (
 
 
 class OrderListItem(BaseModel):
-    id: UUID4
+    id: UUID4 = Field(alias="_id")
     number: int
     created_at: datetime.datetime = Field(alias="createdAt")
     name: str
@@ -45,51 +39,26 @@ class OrderSubscriber(abc.ABC):
 
 
 class OrderNotificationManager:
-    def __init__(self, engine: Engine) -> None:
-        session_context = contextmanager(get_session)
-        with session_context(engine) as session:
-            ingredients_repo = IngredientsRepo(session)
-            orders_repo = OrdersRepo(session, ingredients_repo)
-            orders = orders_repo.get_recent_orders_full(limit=50)
-
-        self.__orders = collections.deque(
-            [OrderListItem.from_order_full(order) for order in orders]
-        )
+    def __init__(self) -> None:
         self._subscribers: list[OrderSubscriber] = []
 
-    async def sub(self, subscriber: OrderSubscriber) -> None:
+    def sub(self, subscriber: OrderSubscriber) -> None:
         self._subscribers.append(subscriber)
-        await subscriber.notify(self.get_message())
 
     def unsub(self, subscriber: OrderSubscriber) -> None:
         self._subscribers.remove(subscriber)
 
     async def pub(self, new_order: OrderFull) -> None:
-        self.__orders.appendleft(OrderListItem.from_order_full(new_order))
-        if len(self.__orders) > 50:
-            self.__orders.pop()
-
-        message = self.get_message()
-
         for sub in self._subscribers:
             try:
-                await sub.notify(message)
+                await sub.notify(new_order)
             except Exception:
                 logging.exception("Failed to notify about updated order")
 
-    def get_message(self) -> dict[str, Any]:
-        return {
-            "orders": [
-                order.model_dump(mode="json", by_alias=True) for order in self.__orders
-            ],
-            "total": 0,
-            "totalToday": 0,
-        }
-
 
 @lru_cache
-def get_order_notifications(engine: EngineDep) -> OrderNotificationManager:
-    return OrderNotificationManager(engine)
+def get_order_notifications() -> OrderNotificationManager:
+    return OrderNotificationManager()
 
 
 NotificationDep = Annotated[OrderNotificationManager, Depends(get_order_notifications)]

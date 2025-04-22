@@ -1,47 +1,26 @@
-import datetime
-import typing
-
 from fastapi import WebSocket, WebSocketDisconnect
-from pydantic import UUID4, BaseModel, Field
 
-from app.use_cases.order_notifications import NotificationDep, OrderSubscriber
+from app.repo.orders import OrdersRepoDep
+from app.use_cases.order_notifications import NotificationDep
 
 from ..router import api_router
+from .common import WebSocketOrderNotifier
 
-__all__ = ("OrderListItemResponse", "get_orders")
-
-
-class OrderListItemResponse(BaseModel):
-    id: UUID4
-    number: int
-    created_at: datetime.datetime = Field(alias="createdAt")
-    name: str
-    ingredients: list[UUID4] = Field(default_factory=list)
-    status: str
-
-
-class WebSocketOrderNotifier(OrderSubscriber):
-    def __init__(self, websocket: WebSocket):
-        self._websocket = websocket
-        self._connected = False
-
-    async def connect(self) -> None:
-        if not self._connected:
-            await self._websocket.accept()
-            self._connected = True
-
-    async def notify(self, recent_orders: dict[str, typing.Any]) -> None:
-        await self._websocket.send_json(recent_orders)
+__all__ = "get_orders"
 
 
 @api_router.websocket("/orders/all")
 async def get_orders(
-    websocket: WebSocket, order_notifications: NotificationDep
+    websocket: WebSocket,
+    order_notifications: NotificationDep,
+    orders_repo: OrdersRepoDep,
 ) -> None:
-    notifier = WebSocketOrderNotifier(websocket)
-    await notifier.connect()
+    await websocket.accept()
+    orders = orders_repo.get_recent_orders_full(limit=50)
+    notifier = WebSocketOrderNotifier(websocket, orders)
+    await notifier.send_current_state()
     try:
-        await order_notifications.sub(notifier)
+        order_notifications.sub(notifier)
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
