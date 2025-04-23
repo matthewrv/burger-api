@@ -1,6 +1,5 @@
 import collections
 import datetime
-import typing
 
 from fastapi import WebSocket
 from fastapi.websockets import WebSocketState
@@ -57,7 +56,7 @@ class WebSocketOrderNotifier(OrderSubscriber):
 
         await self.send_current_state()
 
-    async def send_current_state(self):
+    async def send_current_state(self) -> None:
         if self._websocket.state != WebSocketState.DISCONNECTED:
             message = self._state.model_dump(mode="json", by_alias=True)
             await self._websocket.send_json(message)

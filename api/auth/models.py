@@ -1,5 +1,4 @@
-from pydantic import BaseModel, ConfigDict
-from pydantic.alias_generators import to_camel
+from pydantic import BaseModel, Field
 
 __all__ = ("User", "AuthResponse")
 
@@ -12,7 +11,5 @@ class User(BaseModel):
 class AuthResponse(BaseModel):
     success: bool
     user: User
-    access_token: str
-    refresh_token: str
-
-    model_config = ConfigDict(alias_generator=to_camel)
+    access_token: str = Field(alias="accessToken")
+    refresh_token: str = Field(alias="refreshToken")

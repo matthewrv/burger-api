@@ -1,5 +1,5 @@
 from fastapi.testclient import TestClient
-from sqlmodel import Session, delete, select
+from sqlmodel import Session, select
 
 from db.user import User
 from tests.conftest import SampleUser

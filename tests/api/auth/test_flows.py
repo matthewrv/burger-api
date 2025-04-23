@@ -28,7 +28,6 @@ def test_full_auth_flow(
     assert "accessToken" in response_body
     register_access_token = response_body["accessToken"]
     assert "refreshToken" in response_body
-    register_refresh_token = response_body["refreshToken"]
 
     # assert register access token is valid
     response = client.get(

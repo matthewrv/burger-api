@@ -34,7 +34,7 @@ class OrderListItem(BaseModel):
 
 class OrderSubscriber(abc.ABC):
     @abc.abstractmethod
-    async def notify(self, recent_orders: dict[str, Any]) -> None:
+    async def notify(self, recent_orders: OrderFull) -> None:
         pass
 
 

@@ -26,6 +26,7 @@ async def register_user(user: RegisterUserRequest, db: SessionDep) -> AuthRespon
             name=user.name,
             email=user.email,
             password_hash=security.get_password_hash(user.password),
+            refresh_token_hash="",
         )
         access_token = security.create_access_token(db_user)
         refresh_token = security.create_refresh_token(db_user)

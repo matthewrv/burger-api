@@ -1,9 +1,9 @@
-from .login import *
-from .logout import *
-from .register import *
+from .login import login
+from .logout import logout
+from .register import register_user
 from .router import auth_router
-from .token import *
-from .user import *
+from .token import update_access_token
+from .user import get_user
 
 __all__ = (
     "get_user",

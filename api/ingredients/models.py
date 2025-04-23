@@ -1,7 +1,6 @@
 import uuid
 
 from pydantic import UUID4, BaseModel, Field
-from sqlmodel import UUID
 
 __all__ = ("IngredientItem",)
 

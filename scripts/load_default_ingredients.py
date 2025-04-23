@@ -5,7 +5,7 @@ Loads default ingredients into database from assets file.
 import json
 from typing import Any
 
-from sqlmodel import Session, insert
+from sqlmodel import Session
 
 from app.db import connect_to_db
 from db import Ingredient, SQLModel

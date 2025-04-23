@@ -17,7 +17,7 @@ __all__ = "get_profile_orders"
 
 
 async def _authenticate(
-    session: SessionDep, token: Annotated[str, Query()] = None
+    session: SessionDep, token: Annotated[str | None, Query()] = None
 ) -> User | None:
     if token is None:
         return None
@@ -36,7 +36,7 @@ async def get_profile_orders(
     orders_repo: OrdersRepoDep,
     notifications: NotificationDep,
     user: Annotated[User | None, Depends(_authenticate)],
-):
+) -> None:
     await websocket.accept()
 
     if not user:
