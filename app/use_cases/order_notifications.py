@@ -2,7 +2,7 @@ import abc
 import datetime
 import logging
 from functools import lru_cache
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import Depends
 from pydantic import UUID4, BaseModel, Field
