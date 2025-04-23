@@ -3,9 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    allow_origins: list[str] | None
-    port: int | None
-    db_connection: str
+    allow_origins: list[str] | None = None
+    port: int | None = 8000
+    db_connection: str = "sqlite:///:memory:"
     secret_key: str
 
     model_config = SettingsConfigDict(
