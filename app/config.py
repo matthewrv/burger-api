@@ -1,9 +1,9 @@
-from pydantic import field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    allow_origins: list[str] | None
+    allow_origins: list[str] = Field(default_factory=list)
     port: int | None = 8000
     db_connection: str = "sqlite://"
     secret_key: str
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     @field_validator("allow_origins", mode="before")
     @classmethod
-    def decode_allow_origins(cls, v: str | None) -> list[str]:
+    def decode_allow_origins(cls, v: str) -> list[str]:
         if not v:
             return []
         return v.split(",")

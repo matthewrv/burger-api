@@ -27,7 +27,7 @@ case $COMMAND in
         mypy . || STATUS=$?
         echo
         echo "Pytest running..."
-        SECRET_KEY=testsonlysecretkey pytest $@ || STATUS=$?
+        secret_key=testsonlysecretkey pytest $@ || STATUS=$?
         echo
         echo "Ruff running..."
         ruff check || STATUS=$?
