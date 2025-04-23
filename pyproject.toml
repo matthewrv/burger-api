@@ -22,6 +22,9 @@ dev = [
     "pytest>=8.3.5",
     "snapshottest",
 ]
+nixos-exclude = [
+    "ruff>=0.11.6",
+]
 
 [tool.mypy]
 mypy_path = "./stubs/"
@@ -38,6 +41,9 @@ disallow_untyped_defs = true
 init_forbid_extra = true
 init_typed = true
 warn_required_dynamic_aliases = true
+
+[tool.uv]
+default-groups = [ "dev", "nixos-exclude" ]
 
 [tool.uv.sources]
 snapshottest = { git = "https://github.com/syrusakbary/snapshottest.git" }

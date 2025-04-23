@@ -19,11 +19,17 @@ case $COMMAND in
         echo "Executing script..."
         python $@
         ;;
-        
+
     "test")
         echo "Running tests..."
+        echo
+        echo "Mypy running..."
         mypy . || STATUS=$?
-        pytest $@ || STATUS=$?
+        echo
+        echo "Pytest running..."
+        secret_key=testsonlysecretkey pytest $@ || STATUS=$?
+        echo
+        echo "Ruff running..."
         ruff check || STATUS=$?
         ;;
 
@@ -41,7 +47,7 @@ case $COMMAND in
         echo "Usage: pleh.sh <command> [OPTIONS]"
         echo
         echo pleh.sh - It is like "help", but backwards. Contains shortcuts for useful commands.
-        echo 
+        echo
         echo "Available commands:"
         echo "  format - Format code using ruff"
         echo "  run    - Run python script with provided options"
