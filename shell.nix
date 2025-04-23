@@ -11,11 +11,11 @@ in pkgs.mkShell {
     if [ ! -d "$VENV_DIR" ]; then
       python -m venv $VENV_DIR
     fi
-    
+
     source $VENV_DIR/bin/activate
 
     echo "Python version: $(python --version)"
     echo "Python executable: $(which python)"
-    uv sync
+    uv sync --frozen --no-group nixos-exclude
   '';
 }

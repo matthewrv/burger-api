@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from snapshottest import Snapshot
 
+
 snapshots = Snapshot()
 
 snapshots["test_create_order_happy_path 1"] = {
@@ -19,8 +20,8 @@ snapshots["test_create_order_happy_path 2"] = {
 snapshots["test_create_order_happy_path 3"] = {
     "orders": [
         {
+            "_id": "da6d00b6-c692-4fa9-8624-479a13c30c7f",
             "createdAt": "2025-04-21T10:50:49.105731Z",
-            "id": "da6d00b6-c692-4fa9-8624-479a13c30c7f",
             "ingredients": [
                 "2d75d3fa-bf09-450a-bcb6-5067648b01e8",
                 "0c46c950-ef05-41a4-ba2b-d3224bfd4e2e",
