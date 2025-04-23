@@ -26,4 +26,5 @@ jobs:
         UV_PYTHON_DOWNLOADS=0 uv sync --frozen
     - name: Run tests
       run: |
+        source .venv/bin/activate
         ./pleh.sh test
