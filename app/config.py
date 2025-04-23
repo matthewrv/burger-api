@@ -3,9 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    allow_origins: list[str] | None = None
+    allow_origins: list[str] | None
     port: int | None = 8000
-    db_connection: str = "sqlite:///:memory:"
+    db_connection: str = "sqlite://"
     secret_key: str
 
     model_config = SettingsConfigDict(
@@ -15,10 +15,10 @@ class Settings(BaseSettings):
 
     @field_validator("allow_origins", mode="before")
     @classmethod
-    def decode_allow_origins(cls, v: str) -> list[str] | None:
+    def decode_allow_origins(cls, v: str | None) -> list[str]:
         if not v:
-            return None
-        return [x for x in v.split(",")]
+            return []
+        return v.split(",")
 
 
 settings = Settings()
