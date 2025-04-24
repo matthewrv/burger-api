@@ -3,6 +3,7 @@ name: Release new version
 on:
   push:
     tags:
+      - '*'
 
 env:
   REGISTRY: ghcr.io
