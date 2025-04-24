@@ -1,0 +1,18 @@
+# Python cache files
+__pycache__
+*.pyc
+.ruff_cache
+.mypy_cache
+.pytest_cache
+
+# Testing data
+db.sqlite
+
+# Python virtual environment
+.venv
+
+# Sensitive data
+.env
+
+# docs
+docs
