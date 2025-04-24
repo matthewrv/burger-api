@@ -4,13 +4,15 @@
 
 ⚠️ Work In Progress
 
-[![Run tests](https://github.com/matthewrv/burger-api/actions/workflows/tests.yaml/badge.svg)](https://github.com/matthewrv/burger-api/actions/workflows/tests.yaml)
-![FastAPI](https://img.shields.io/badge/fastapi-262626?logo=fastapi&logoColor=white&style=flat)
-![Pydantic](https://img.shields.io/badge/pydantic-262626?logo=pydantic&logoColor=white&style=flat)
+[![Tests](https://github.com/matthewrv/burger-api/actions/workflows/validation.yaml/badge.svg)](https://github.com/matthewrv/burger-api/actions/workflows/validation.yaml)
+![FastAPI](https://img.shields.io/badge/FastAPI-262626?logo=fastapi&logoColor=white&style=flat)
+![Pydantic](https://img.shields.io/badge/Pydantic-262626?logo=pydantic&logoColor=white&style=flat)
 ![PyJWT](https://img.shields.io/badge/pyjwt-262626?logo=jsonwebtokens&logoColor=white&style=flat)
 ![SQLModel](https://img.shields.io/badge/SQLModel-262626?logo=sqlite&logoColor=white&style=flat)
 ![Alembic](https://img.shields.io/badge/alembic-262626?logo=alembic&logoColor=white&style=flat)
 ![WebSockets](https://img.shields.io/badge/websockets-262626?logo=websocket&logoColor=white&style=flat)
+![Pytest](https://img.shields.io/badge/PyTest-262626?logo=pytest&logoColor=white&style=flat)
+
 
 ## Разработка
 
