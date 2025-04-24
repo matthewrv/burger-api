@@ -88,6 +88,31 @@ def add_test_user(session: Session, sample_user_data: SampleUser) -> SampleUser:
     return sample_user_data
 
 
+@pytest.fixture(name="test_user_2")
+def add_test_user_2(session: Session) -> SampleUser:
+    test_user_2 = SampleUser(
+        id=uuid.UUID("0f854aa6-30d9-4525-806f-aad3cdaa2e19"),
+        name="test_user_2",
+        email="test2@example.com",
+        password="12345678",
+        refresh_token="placeholder",
+    )
+    test_user_2.refresh_token = security.create_refresh_token(test_user_2)
+
+    with session.begin():
+        db_user = User(
+            id=test_user_2.id,
+            name=test_user_2.name,
+            email=test_user_2.email,
+            password_hash=security.get_password_hash(test_user_2.password),
+            refresh_token_hash=security.get_password_hash(test_user_2.refresh_token),
+        )
+
+        session.add(db_user)
+
+    return test_user_2
+
+
 @pytest.fixture(name="ingredients")
 def add_test_ingredients(session: Session) -> list[Ingredient]:
     common_params = {
