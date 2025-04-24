@@ -1,4 +1,4 @@
-from pydantic import Field, field_validator
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,11 +13,12 @@ class Settings(BaseSettings):
         enable_decoding=True,
     )
 
-    @field_validator('allow_origins', mode="before")
+    @field_validator("allow_origins", mode="before")
     @classmethod
     def get_allowed_origins(cls, value: str) -> list[str]:
         if not value:
             return []
-        return value.split(',')
+        return value.split(",")
+
 
 settings = Settings()
