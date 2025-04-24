@@ -1,4 +1,4 @@
-name: Validate updates
+name: Tests
 
 on:
   push:
