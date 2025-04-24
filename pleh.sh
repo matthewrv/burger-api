@@ -13,6 +13,7 @@ case $COMMAND in
         echo "Formatting code..."
         ruff format;
         ruff check --select I --fix
+        ruff check --fix -s
         ;;
 
     "script")
