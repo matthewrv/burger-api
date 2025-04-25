@@ -1,4 +1,5 @@
 import datetime
+import typing
 from typing import Annotated
 
 from fastapi import Depends
@@ -76,9 +77,14 @@ class OrdersRepo(BaseRepo):
         if len(ingredients) < len(ingredient_ids):
             return Error(message="unknown ingredients")
 
+        # postgresql identity requires None
+        assert self._session.bind is not None
+        dialect_name = self._session.bind.dialect.name
+        number = None if dialect_name == 'postgresql' else 0
+
         dbOrder = DbOrder(
             name=self._burger_name_from_ingredients(ingredients),
-            number=0,  # FIXME generate serial number
+            number=number,  # type: ignore[arg-type]
             owner_id=user.id,
             status="pending",
         )
@@ -89,8 +95,15 @@ class OrdersRepo(BaseRepo):
             for ingredient in ingredient_ids
         ]
         self._session.add_all(order_ingredients)
+        saved_order = typing.cast(DbOrder, self.get_shallow_order_by_id(dbOrder.id))
 
-        return self._compose_order_full(dbOrder, order_ingredients)
+        return self._compose_order_full(saved_order, order_ingredients)
+
+    @as_transaction
+    def get_shallow_order_by_id(self, id_: UUID4) -> DbOrder | None:
+        return self._session.exec(
+            select(DbOrder).where(col(DbOrder.id) == id_)
+        ).one_or_none()
 
     @staticmethod
     def _burger_name_from_ingredients(ingredients: list[Ingredient]) -> str:
