@@ -121,8 +121,6 @@ dev = [
     { name = "mypy" },
     { name = "pytest" },
     { name = "snapshottest" },
-]
-nixos-exclude = [
     { name = "ruff" },
 ]
 
@@ -144,8 +142,8 @@ dev = [
     { name = "mypy", specifier = ">=1.15.0" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "snapshottest", git = "https://github.com/syrusakbary/snapshottest.git" },
+    { name = "ruff", specifier = ">=0.11.6" }
 ]
-nixos-exclude = [{ name = "ruff", specifier = ">=0.11.6" }]
 
 [[package]]
 name = "certifi"

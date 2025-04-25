@@ -7,15 +7,10 @@ in pkgs.mkShell {
     pkgs.python312Packages.ruff
   ];
   shellHook = ''
-    export VENV_DIR=.venv
-    if [ ! -d "$VENV_DIR" ]; then
-      python -m venv $VENV_DIR
-    fi
-
-    source $VENV_DIR/bin/activate
+    uv sync --frozen --no-install-package ruff
+    source .venv/bin/activate
 
     echo "Python version: $(python --version)"
     echo "Python executable: $(which python)"
-    uv sync --frozen --no-group nixos-exclude
   '';
 }

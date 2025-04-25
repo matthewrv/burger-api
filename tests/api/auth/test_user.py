@@ -1,4 +1,5 @@
 import typing
+
 import pytest
 from fastapi.testclient import TestClient
 from snapshottest.pytest import PyTestSnapshotTest

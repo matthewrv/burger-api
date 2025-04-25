@@ -13,3 +13,6 @@ db.sqlite
 
 # Sensitive data
 .env
+
+# Dev environment
+.vscode
