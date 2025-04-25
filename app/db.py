@@ -12,9 +12,7 @@ __all__ = ("SessionDep", "EngineDep")
 
 @lru_cache
 def connect_to_db() -> Engine:
-    return create_engine(
-        settings.db_connection, connect_args={"check_same_thread": False}
-    )
+    return create_engine(settings.db_connection)
 
 
 EngineDep = Annotated[Engine, Depends(connect_to_db)]

@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import UUID4
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Identity, SQLModel
 
 from .utils import random_uuid, utc_now
 
@@ -16,6 +16,8 @@ class Order(SQLModel, table=True):
         index=True, default_factory=utc_now, sa_column_kwargs={"onupdate": utc_now}
     )
     name: str = Field(max_length=255)
-    number: int
+    number: int = Field(
+        sa_column_args=[Identity(always=True, start=1000, maxvalue=9999, cycle=True)]
+    )
     owner_id: UUID4 = Field(foreign_key="user.id")
     status: str

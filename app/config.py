@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     port: int | None = 8000
     db_connection: str = "sqlite://"
     secret_key: str
+    db_name: str | None = None
+    db_user: str | None = None
+    db_password: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
