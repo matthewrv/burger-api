@@ -3,18 +3,20 @@
 # pleh.sh - It is like "help", but backwards. Contains shortcuts for useful commands.
 
 COMMAND="$1";
-shift 1
+if [ "$1" != "" ]; then
+    shift 1
+fi
 
 PYTHONPATH=$PWD:$PYTHONPATH
 STATUS=0
 
 CONTAINER_NAME=postgres-burger
-DB_NAME=`dotenv get DB_NAME`
-DB_USER=`dotenv get DB_USER`
-DB_PASSWORD=`dotenv get DB_PASSWORD`
+DB_NAME=$DB_NAME || `dotenv get DB_NAME`
+DB_USER=$DB_USER ||`dotenv get DB_USER`
+DB_PASSWORD=$DB_PASSWORD ||`dotenv get DB_PASSWORD`
 
 start_env() {
-    docker container run \
+    docker container start $CONTAINER_NAME || docker container run \
         --name $CONTAINER_NAME \
         -p 5432:5432 \
         -e POSTGRES_DB=${DB_NAME} \
@@ -83,8 +85,8 @@ case $COMMAND in
         echo "  run       - Run python script with provided options"
         echo "  test      - Run pytest with provided options"
         echo "  build     - Build docker production docker image"
-        echo "  start-env - Start postgres db for application from .env config
-        echo "  stop-env  - Stop postgres db for application
+        echo "  start-env - Start postgres db for application from .env config"
+        echo "  stop-env  - Stop postgres db for application"
         ;;
 esac
 

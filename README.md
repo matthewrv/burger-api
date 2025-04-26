@@ -63,3 +63,9 @@ fastapi dev
 # Форматирование кода
 ./pleh.sh format
 ```
+
+### Как запустить скрипт в продакшене
+
+```bash
+docker container exec -w /app burger-api ./pleh.sh script scripts/load_default_ingredients.py
+```
