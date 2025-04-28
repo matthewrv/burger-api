@@ -5,6 +5,10 @@ __pycache__
 .mypy_cache
 .pytest_cache
 
+# Logs
+*.log
+!phout*.log
+
 # Testing data
 db.sqlite
 

@@ -6,6 +6,8 @@ in pkgs.mkShell {
     pkgs.uv
     pkgs.python312Packages.ruff
   ];
+  # required for numpy to work correctly
+  LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib/";
   shellHook = ''
     uv sync --frozen --no-install-package ruff
     source .venv/bin/activate

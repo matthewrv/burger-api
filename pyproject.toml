@@ -22,6 +22,10 @@ dev = [
     "snapshottest",
     "ruff>=0.11.6",
     "bump-my-version>=1.1.2",
+    "plotly>=6.0.1",
+    "numpy>=2.2.5",
+    "pandas>=2.2.3",
+    "locust>=2.36.2",
 ]
 
 [tool.mypy]

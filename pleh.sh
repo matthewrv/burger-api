@@ -75,6 +75,16 @@ case $COMMAND in
         docker run --env-file=.env matthewrv/burger-api
         ;;
 
+    "bench")
+        cd docs
+        docker run \
+            -v $(pwd):/var/loadtest \
+            -v $SSH_AUTH_SOCK:/ssh-agent -e SSH_AUTH_SOCK=/ssh-agent \
+            --net host \
+            -it yandex/yandex-tank
+        cd ..
+        ;;
+
     *)
         echo "Usage: pleh.sh <command> [OPTIONS]"
         echo
@@ -87,6 +97,7 @@ case $COMMAND in
         echo "  build     - Build docker production docker image"
         echo "  start-env - Start postgres db for application from .env config"
         echo "  stop-env  - Stop postgres db for application"
+        echo "  bench     - Run perfomance benchmark with docs/load.yaml file"
         ;;
 esac
 

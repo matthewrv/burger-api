@@ -80,7 +80,7 @@ class OrdersRepo(BaseRepo):
         # postgresql identity requires None
         assert self._session.bind is not None
         dialect_name = self._session.bind.dialect.name
-        number = None if dialect_name == 'postgresql' else 0
+        number = None if dialect_name == "postgresql" else 0
 
         dbOrder = DbOrder(
             name=self._burger_name_from_ingredients(ingredients),
