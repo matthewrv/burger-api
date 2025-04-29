@@ -7,8 +7,8 @@ from typing import Any
 
 from sqlmodel import Session
 
-from app.db import connect_to_db
 from db import Ingredient, SQLModel
+from db.db import connect_to_db
 
 
 def transform_to_db_model(json_model: dict[str, Any]) -> Ingredient:

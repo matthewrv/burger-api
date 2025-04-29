@@ -6,8 +6,8 @@ from fastapi import Depends
 from pydantic import UUID4, BaseModel, Field
 from sqlmodel import col, desc, select
 
-from app.db import SessionDep
 from app.repo.ingredients import IngredientsRepoDep
+from db.db import SessionDep
 from db.ingredient import Ingredient
 from db.order import Order as DbOrder
 from db.order_ingredient import OrderIngredient

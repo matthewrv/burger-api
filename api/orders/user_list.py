@@ -2,12 +2,12 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
 
-from app.db import SessionDep
 from app.repo.orders import OrdersRepoDep
 from app.security import get_current_user
 from app.use_cases.order_notifications import (
     NotificationDep,
 )
+from db.db import SessionDep
 from db.user import User
 
 from ..router import api_router

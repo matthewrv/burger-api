@@ -1,6 +1,6 @@
 from app import security
-from app.db import SessionDep
 from app.security import UserByRefreshTokenDep
+from db.db import SessionDep
 
 from .models import AuthResponse, User
 from .router import auth_router

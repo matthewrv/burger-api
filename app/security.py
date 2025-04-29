@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 from sqlmodel import Session, select
 
-from app.db import SessionDep
+from db.db import SessionDep
 from db.user import User
 from db.utils import utc_now
 
