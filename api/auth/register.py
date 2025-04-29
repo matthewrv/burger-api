@@ -3,7 +3,7 @@ import uuid
 from pydantic import BaseModel, Field
 
 from app import security
-from app.db import SessionDep
+from db.db import SessionDep
 from db.user import User as DbUser
 
 from .models import AuthResponse, User

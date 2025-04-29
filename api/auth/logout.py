@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
-from app.db import SessionDep
 from app.security import UserByRefreshTokenDep
+from db.db import SessionDep
 from db.utils import utc_now
 
 from .router import auth_router

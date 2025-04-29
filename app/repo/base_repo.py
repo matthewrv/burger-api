@@ -1,7 +1,7 @@
 import functools
 from typing import Callable, Concatenate, ParamSpec, TypeVar
 
-from app.db import SessionDep
+from db.db import SessionDep
 
 __all__ = ("BaseRepo", "as_transaction")
 

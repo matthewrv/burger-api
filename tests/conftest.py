@@ -12,8 +12,9 @@ from pydantic import BaseModel
 from sqlalchemy import Engine
 from sqlmodel import Session, SQLModel, StaticPool, create_engine
 
-from app import db, security
+from app import security
 from app.app import create_app
+from db import db
 from db.ingredient import Ingredient
 from db.user import User
 
