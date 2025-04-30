@@ -1,7 +1,7 @@
 services:
   web:
     container_name: burger-api
-    image: "ghcr.io/matthewrv/burger-api:v0.1.1"
+    image: "ghcr.io/matthewrv/burger-api:v0.2.0"
     ports:
       - "8000:8000"
     env_file:
