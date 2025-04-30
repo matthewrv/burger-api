@@ -1,19 +1,24 @@
-
+import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 
 from tests.conftest import SampleUser
 
 
-def test_logout_happy_path(client: TestClient, test_user: SampleUser) -> None:
-    response = client.post("/api/auth/logout", json={"token": test_user.refresh_token})
+@pytest.mark.anyio
+async def test_logout_happy_path(client: AsyncClient, test_user: SampleUser) -> None:
+    response = await client.post(
+        "/api/auth/logout", json={"token": test_user.refresh_token}
+    )
     assert response.status_code == status.HTTP_200_OK
 
     # assert all tokens are invalid after logout
-    response = client.get(
+    response = await client.get(
         "/api/auth/user", headers={"Authorization": f"Bearer {test_user.access_token}"}
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    response = client.post("/api/auth/token", json={"token": test_user.refresh_token})
+    response = await client.post(
+        "/api/auth/token", json={"token": test_user.refresh_token}
+    )
     assert response.status_code == status.HTTP_403_FORBIDDEN

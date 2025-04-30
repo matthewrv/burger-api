@@ -18,7 +18,7 @@ class RegisterUserRequest(BaseModel):
 async def register_user(
     user: RegisterUserRequest, user_repo: UserRepoDep
 ) -> AuthResponse:
-    db_user, access_token, refresh_token = user_repo.create_user(
+    db_user, access_token, refresh_token = await user_repo.create_user(
         CreateUserRequest.model_validate(user, from_attributes=True)
     )
 

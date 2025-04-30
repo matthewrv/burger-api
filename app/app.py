@@ -14,7 +14,8 @@ from .config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     engine = connect_to_db()
-    SQLModel.metadata.create_all(engine)
+    async with engine.connect() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
     yield
 
 

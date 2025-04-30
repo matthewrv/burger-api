@@ -1,19 +1,22 @@
 import uuid
 
 import pytest
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
+from httpx_ws import AsyncWebSocketSession, aconnect_ws  # noqa: F401
 from snapshottest.pytest import PyTestSnapshotTest
-from sqlmodel import Session, select
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db.ingredient import Ingredient
 from db.order import Order
 from tests.conftest import SampleUser
 
 
+@pytest.mark.anyio
 @pytest.mark.now("2025-04-21T10:50:49.105731Z")
-def test_create_order_happy_path(
-    session: Session,
-    client: TestClient,
+async def test_create_order_happy_path(
+    session: AsyncSession,
+    client: AsyncClient,
     test_user: SampleUser,
     ingredients: list[Ingredient],
     snapshot: PyTestSnapshotTest,
@@ -24,11 +27,11 @@ def test_create_order_happy_path(
     burger_ingredients = [str(ingredient.id) for ingredient in ingredients]
     burger_ingredients = [str(bun.id), *burger_ingredients, str(bun.id)]
 
-    with client.websocket_connect("/api/orders/all") as websocket:
-        data = websocket.receive_json()
+    async with aconnect_ws("/api/orders/all", client) as websocket:  # type: AsyncWebSocketSession
+        data = await websocket.receive_json()
         snapshot.assert_match(data)
 
-        response = client.post(
+        response = await client.post(
             "/api/orders",
             json={"ingredients": burger_ingredients},
             headers={"Authorization": f"Bearer {test_user.access_token}"},
@@ -36,29 +39,31 @@ def test_create_order_happy_path(
         assert response.status_code == 200
         snapshot.assert_match(response.json())
 
-        data = websocket.receive_json()
+        data = await websocket.receive_json()
         snapshot.assert_match(data)
 
-    with session.begin():
-        db_orders = session.exec(select(Order)).all()
+    async with session.begin():
+        result = await session.exec(select(Order))
+        db_orders = result.all()
         assert len(db_orders) == 1
 
 
-def test_create_order_fail(
-    session: Session,
-    client: TestClient,
+@pytest.mark.anyio
+async def test_create_order_fail(
+    session: AsyncSession,
+    client: AsyncClient,
     test_user: SampleUser,
 ) -> None:
-    response = client.post(
+    response = await client.post(
         "/api/orders",
         json={"ingredients": [str(uuid.uuid4())]},
         headers={"Authorization": f"Bearer {test_user.access_token}"},
     )
     assert response.status_code == 422
 
-    with session.begin():
-        db_orders = session.exec(select(Order)).all()
-        assert len(db_orders) == 0
+    async with session.begin():
+        db_orders = await session.exec(select(Order))
+        assert len(db_orders.all()) == 0
 
     response_body = response.json()
     assert response_body == {"error": "unknown ingredients", "success": False}

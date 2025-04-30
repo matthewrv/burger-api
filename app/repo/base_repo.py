@@ -1,5 +1,6 @@
 import functools
-from typing import Callable, Concatenate, ParamSpec, TypeVar
+import inspect
+from typing import Awaitable, Callable, Concatenate, ParamSpec, TypeVar
 
 from db.db import SessionDep
 
@@ -17,21 +18,22 @@ T = TypeVar("T")
 
 
 def as_transaction(
-    method: Callable[Concatenate[R, P], T],
-) -> Callable[Concatenate[R, P], T]:
+    method: Callable[Concatenate[R, P], Awaitable[T]],
+) -> Callable[Concatenate[R, P], Awaitable[T]]:
     """
     Wraps method in transaction.
 
     Helps repos with shared session to execute several SQL queries
     in one transaction.
     """
+    assert inspect.iscoroutinefunction(method), "Can only wrap async methods"
 
     @functools.wraps(method)
-    def wrapper(self: R, *args: P.args, **kwargs: P.kwargs) -> T:
+    async def wrapper(self: R, *args: P.args, **kwargs: P.kwargs) -> T:
         if self._session.in_transaction():
-            return method(self, *args, **kwargs)
+            return await method(self, *args, **kwargs)
 
-        with self._session.begin():
-            return method(self, *args, **kwargs)
+        async with self._session.begin():
+            return await method(self, *args, **kwargs)
 
     return wrapper

@@ -17,5 +17,5 @@ class IngredientsListResponse(BaseModel):
 
 @api_router.get("/ingredients", response_model=IngredientsListResponse)
 async def get_ingredients(ingredients_repo: IngredientsRepoDep) -> dict[str, Any]:
-    ingredients = ingredients_repo.get_all_active_ingredients()
+    ingredients = await ingredients_repo.get_all_active_ingredients()
     return {"success": True, "data": ingredients}

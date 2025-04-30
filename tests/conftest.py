@@ -1,16 +1,17 @@
 import datetime
 import unittest.mock
 import uuid
-from contextlib import contextmanager
-from functools import lru_cache
-from typing import Generator
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator, Generator
 
 import pytest
 from fastapi import FastAPI
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
+from httpx_ws.transport import ASGIWebSocketTransport
 from pydantic import BaseModel
-from sqlalchemy import Engine
-from sqlmodel import Session, SQLModel, StaticPool, create_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
+from sqlmodel import SQLModel, StaticPool
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import security
 from app.app import create_app
@@ -19,14 +20,22 @@ from db.ingredient import Ingredient
 from db.user import User
 
 
+@pytest.fixture
+def anyio_backend() -> str:
+    return "asyncio"
+
+
 @pytest.fixture(name="app")
-def get_test_app() -> Generator[FastAPI]:
-    @lru_cache
-    def connect_to_db() -> Engine:
-        engine = create_engine(
-            "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-        )
-        SQLModel.metadata.create_all(engine)
+async def get_test_app() -> AsyncGenerator[FastAPI]:
+    engine = create_async_engine(
+        "sqlite+aiosqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    async with engine.connect() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+    def connect_to_db() -> AsyncEngine:
         return engine
 
     app = create_app()
@@ -38,16 +47,21 @@ def get_test_app() -> Generator[FastAPI]:
 
 
 @pytest.fixture(name="session")
-def get_session(app: FastAPI) -> Generator[Session, None, None]:
-    session_context = contextmanager(db.get_session)
+async def get_session(app: FastAPI) -> AsyncGenerator[AsyncSession]:
+    session_context = asynccontextmanager(db.get_session)
     engine = app.dependency_overrides[db.connect_to_db]()
-    with session_context(engine) as session:
+    async with session_context(engine) as session:
         yield session
 
 
 @pytest.fixture(name="client")
-def get_client(app: FastAPI, session: Session) -> Generator[TestClient, None, None]:
-    yield TestClient(app)
+async def get_client(
+    app: FastAPI, session: AsyncSession
+) -> AsyncGenerator[AsyncClient]:
+    async with AsyncClient(
+        transport=ASGIWebSocketTransport(app=app), base_url="http://test"
+    ) as ac:
+        yield ac
 
 
 class SampleUser(BaseModel):
@@ -78,8 +92,10 @@ def get_sample_user_data() -> SampleUser:
 
 
 @pytest.fixture(name="test_user")
-def add_test_user(session: Session, sample_user_data: SampleUser) -> SampleUser:
-    with session.begin():
+async def add_test_user(
+    session: AsyncSession, sample_user_data: SampleUser
+) -> SampleUser:
+    async with session.begin():
         db_user = User(
             id=sample_user_data.id,
             name=sample_user_data.name,
@@ -96,7 +112,7 @@ def add_test_user(session: Session, sample_user_data: SampleUser) -> SampleUser:
 
 
 @pytest.fixture(name="test_user_2")
-def add_test_user_2(session: Session) -> SampleUser:
+async def add_test_user_2(session: AsyncSession) -> SampleUser:
     test_user_2 = SampleUser(
         id=uuid.UUID("0f854aa6-30d9-4525-806f-aad3cdaa2e19"),
         name="test_user_2",
@@ -110,7 +126,7 @@ def add_test_user_2(session: Session) -> SampleUser:
     test_user_2.access_token = security.create_access_token(test_user_2, now)
     test_user_2.refresh_token = security.create_refresh_token(test_user_2, now)
 
-    with session.begin():
+    async with session.begin():
         db_user = User(
             id=test_user_2.id,
             name=test_user_2.name,
@@ -125,7 +141,7 @@ def add_test_user_2(session: Session) -> SampleUser:
 
 
 @pytest.fixture(name="ingredients")
-def add_test_ingredients(session: Session) -> list[Ingredient]:
+async def add_test_ingredients(session: AsyncSession) -> list[Ingredient]:
     common_params = {
         "proteins": 100,
         "fat": 100,
@@ -137,7 +153,7 @@ def add_test_ingredients(session: Session) -> list[Ingredient]:
         "image_mobile": "https://example.com/img.png",
         "burger_word": "тестовый",
     }
-    with session.begin():
+    async with session.begin():
         ingredients = [
             Ingredient.model_validate(
                 {

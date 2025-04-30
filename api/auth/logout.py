@@ -16,5 +16,5 @@ class LogoutResponse(BaseModel):
 
 @auth_router.post("/logout")
 async def logout(user: UserByRefreshTokenDep, user_repo: UserRepoDep) -> LogoutResponse:
-    user_repo.logout_user(user)
+    await user_repo.logout_user(user)
     return LogoutResponse(success=True)

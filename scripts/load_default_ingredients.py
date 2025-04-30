@@ -2,10 +2,11 @@
 Loads default ingredients into database from assets file.
 """
 
+import asyncio
 import json
 from typing import Any
 
-from sqlmodel import Session
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db import Ingredient, SQLModel
 from db.db import connect_to_db
@@ -17,18 +18,19 @@ def transform_to_db_model(json_model: dict[str, Any]) -> Ingredient:
     return Ingredient(**kwargs)
 
 
-def main() -> None:
+async def main() -> None:
     with open("assets/ingredients.json") as f:
         data = json.load(f)
 
     engine = connect_to_db()
-    SQLModel.metadata.create_all(engine)
+    async with engine.connect() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
-    with Session(engine) as session:
+    async with AsyncSession(engine) as session:
         ingredients = [transform_to_db_model(ingredient) for ingredient in data["data"]]
         session.add_all(ingredients)
-        session.commit()
+        await session.commit()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

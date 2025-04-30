@@ -46,7 +46,7 @@ async def get_profile_orders(
         await websocket.close()
         return
 
-    initial_orders = orders_repo.get_recent_orders_full(limit=50, user=user)
+    initial_orders = await orders_repo.get_recent_orders_full(limit=50, user=user)
     notifier = WebSocketOrderNotifier(websocket, initial_orders, user)
     await notifier.send_current_state()
 

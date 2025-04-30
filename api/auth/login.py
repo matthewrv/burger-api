@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
 
 @auth_router.post("/login")
 async def login(request: LoginRequest, user_repo: UserRepoDep) -> AuthResponse:
-    user = user_repo.get_user_by_email(request.email)
+    user = await user_repo.get_user_by_email(request.email)
 
     if not user:
         raise HTTPException(
@@ -31,7 +31,7 @@ async def login(request: LoginRequest, user_repo: UserRepoDep) -> AuthResponse:
             detail="Incorrect username or password",
         )
 
-    access_token, refresh_token = user_repo.rotate_user_tokens(user)
+    access_token, refresh_token = await user_repo.rotate_user_tokens(user)
 
     return AuthResponse(
         success=True,

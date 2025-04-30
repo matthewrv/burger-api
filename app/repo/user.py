@@ -30,10 +30,10 @@ class EmailAlreadyExists(Exception):
 
 class UserRepo(BaseRepo):
     @as_transaction
-    def update_user(self, user: User, update_user: UpdateUserRequest) -> User:
+    async def update_user(self, user: User, update_user: UpdateUserRequest) -> User:
         # validate
         if update_user.email:
-            another_user = self.get_user_by_email(update_user.email)
+            another_user = await self.get_user_by_email(update_user.email)
             if another_user:
                 raise EmailAlreadyExists()
 
@@ -58,13 +58,12 @@ class UserRepo(BaseRepo):
         return user
 
     @as_transaction
-    def get_user_by_email(self, email: str) -> User | None:
-        return self._session.exec(
-            select(User).where(col(User.email) == email)
-        ).one_or_none()
+    async def get_user_by_email(self, email: str) -> User | None:
+        result = await self._session.exec(select(User).where(col(User.email) == email))
+        return result.one_or_none()
 
     @as_transaction
-    def rotate_user_tokens(self, user: User) -> tuple[str, str]:
+    async def rotate_user_tokens(self, user: User) -> tuple[str, str]:
         # remove microseconds since we do not store them in JWT
         now = utc_now().replace(microsecond=0)
         refresh_token = security.create_refresh_token(user)
@@ -76,12 +75,12 @@ class UserRepo(BaseRepo):
         return access_token, refresh_token
 
     @as_transaction
-    def logout_user(self, user: User) -> None:
+    async def logout_user(self, user: User) -> None:
         user.refresh_token_hash = None
         user.logout_at = utc_now()
 
     @as_transaction
-    def create_user(self, request: CreateUserRequest) -> tuple[User, str, str]:
+    async def create_user(self, request: CreateUserRequest) -> tuple[User, str, str]:
         db_user = User(
             id=uuid.uuid4(),
             name=request.name,

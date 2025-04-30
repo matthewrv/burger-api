@@ -1,19 +1,23 @@
+import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
-from sqlmodel import Session, select
+from httpx import AsyncClient
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 from db.user import User
 from tests.conftest import SampleUser
 
 
-def test_register(
-    client: TestClient, session: Session, sample_user_data: SampleUser
+@pytest.mark.anyio
+async def test_register(
+    client: AsyncClient, session: AsyncSession, sample_user_data: SampleUser
 ) -> None:
-    with session.begin():
-        result = session.exec(select(User)).all()
-        assert len(result) == 0, f"Expected no users in db, but got {len(result)}"
+    async with session.begin():
+        result = await session.exec(select(User))
+        users = result.all()
+        assert len(users) == 0, f"Expected no users in db, but got {len(users)}"
 
-    response = client.post(
+    response = await client.post(
         "/api/auth/register",
         json={
             "name": sample_user_data.name,
@@ -27,8 +31,9 @@ def test_register(
     register_access_token = response_body["accessToken"]
     assert "refreshToken" in response_body
 
-    with session.begin():
-        users = session.exec(select(User)).all()
+    async with session.begin():
+        result = await session.exec(select(User))
+        users = result.all()
 
         assert len(users) == 1
 
@@ -37,13 +42,13 @@ def test_register(
         assert user.name == sample_user_data.name
 
     # assert register access token is valid
-    response = client.get(
+    response = await client.get(
         "/api/auth/user", headers={"Authorization": register_access_token}
     )
     assert response.status_code == status.HTTP_200_OK
 
     # assert user can login after registration
-    response = client.post(
+    response = await client.post(
         "/api/auth/login",
         json={"email": sample_user_data.email, "password": sample_user_data.password},
     )

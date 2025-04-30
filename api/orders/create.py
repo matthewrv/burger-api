@@ -42,7 +42,7 @@ async def create_order(
     orders_repo: OrdersRepoDep,
     order_notifications: NotificationDep,
 ) -> dict[str, OrderFull] | JSONResponse:
-    result = orders_repo.create_order(
+    result = await orders_repo.create_order(
         ingredient_ids=order.ingredients,
         user=user,
     )

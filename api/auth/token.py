@@ -9,7 +9,7 @@ from .router import auth_router
 async def update_access_token(
     user: UserByRefreshTokenDep, user_repo: UserRepoDep
 ) -> AuthResponse:
-    access_token, refresh_token = user_repo.rotate_user_tokens(user)
+    access_token, refresh_token = await user_repo.rotate_user_tokens(user)
 
     return AuthResponse(
         success=True,

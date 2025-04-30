@@ -41,7 +41,7 @@ class OrdersRepo(BaseRepo):
         self._ingredients_repo = ingredients_repo
 
     @as_transaction
-    def get_recent_orders_full(
+    async def get_recent_orders_full(
         self, limit: int = 50, user: User | None = None
     ) -> list[OrderFull]:
         query = select(DbOrder).order_by(desc(DbOrder.created_at)).limit(limit)
@@ -52,12 +52,14 @@ class OrdersRepo(BaseRepo):
                 .order_by(desc(DbOrder.created_at))
                 .limit(limit)
             )
-        orders = self._session.exec(query).all()
+        orders_result = await self._session.exec(query)
+        orders = orders_result.all()
 
         order_ids = [order.id for order in orders]
-        ingredients = self._session.exec(
+        ingredients_result = await self._session.exec(
             select(OrderIngredient).where(col(OrderIngredient.order_id).in_(order_ids))
-        ).all()
+        )
+        ingredients = ingredients_result.all()
 
         orders_map = {
             order.id: OrderFull.model_validate(order, from_attributes=True)
@@ -69,10 +71,12 @@ class OrdersRepo(BaseRepo):
         return list(orders_map.values())
 
     @as_transaction
-    def create_order(
+    async def create_order(
         self, ingredient_ids: list[UUID4], user: User
     ) -> Error | OrderFull:
-        ingredients = self._ingredients_repo.get_ingredients_by_ids(ingredient_ids)
+        ingredients = await self._ingredients_repo.get_ingredients_by_ids(
+            ingredient_ids
+        )
 
         if len(ingredients) < len(ingredient_ids):
             return Error(message="unknown ingredients")
@@ -95,15 +99,16 @@ class OrdersRepo(BaseRepo):
             for ingredient in ingredient_ids
         ]
         self._session.add_all(order_ingredients)
-        saved_order = typing.cast(DbOrder, self.get_shallow_order_by_id(dbOrder.id))
+        saved_order = typing.cast(
+            DbOrder, await self.get_shallow_order_by_id(dbOrder.id)
+        )
 
         return self._compose_order_full(saved_order, order_ingredients)
 
     @as_transaction
-    def get_shallow_order_by_id(self, id_: UUID4) -> DbOrder | None:
-        return self._session.exec(
-            select(DbOrder).where(col(DbOrder.id) == id_)
-        ).one_or_none()
+    async def get_shallow_order_by_id(self, id_: UUID4) -> DbOrder | None:
+        result = await self._session.exec(select(DbOrder).where(col(DbOrder.id) == id_))
+        return result.one_or_none()
 
     @staticmethod
     def _burger_name_from_ingredients(ingredients: list[Ingredient]) -> str:
