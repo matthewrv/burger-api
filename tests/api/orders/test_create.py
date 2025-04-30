@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 from snapshottest.pytest import PyTestSnapshotTest
 from sqlmodel import Session, select
 
-from app import security
 from db.ingredient import Ingredient
 from db.order import Order
 from tests.conftest import SampleUser
@@ -29,11 +28,10 @@ def test_create_order_happy_path(
         data = websocket.receive_json()
         snapshot.assert_match(data)
 
-        token = security.create_access_token(test_user)
         response = client.post(
             "/api/orders",
             json={"ingredients": burger_ingredients},
-            headers={"Authorization": f"Bearer {token}"},
+            headers={"Authorization": f"Bearer {test_user.access_token}"},
         )
         assert response.status_code == 200
         snapshot.assert_match(response.json())
@@ -51,11 +49,10 @@ def test_create_order_fail(
     client: TestClient,
     test_user: SampleUser,
 ) -> None:
-    token = security.create_access_token(test_user)
     response = client.post(
         "/api/orders",
         json={"ingredients": [str(uuid.uuid4())]},
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {test_user.access_token}"},
     )
     assert response.status_code == 422
 

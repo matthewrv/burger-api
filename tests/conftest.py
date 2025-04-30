@@ -55,6 +55,7 @@ class SampleUser(BaseModel):
     name: str
     email: str
     password: str
+    access_token: str
     refresh_token: str
 
 
@@ -65,9 +66,14 @@ def get_sample_user_data() -> SampleUser:
         name="test",
         email="test@example.com",
         password="12345678",
+        access_token="placeholder",
         refresh_token="placeholder",
     )
-    test_user.refresh_token = security.create_refresh_token(test_user)
+
+    # set issue date 10 seconds earlier to test token invalidation without time.sleep
+    now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=-10)
+    test_user.access_token = security.create_access_token(test_user, now)
+    test_user.refresh_token = security.create_refresh_token(test_user, now)
     return test_user
 
 
@@ -96,9 +102,13 @@ def add_test_user_2(session: Session) -> SampleUser:
         name="test_user_2",
         email="test2@example.com",
         password="12345678",
+        access_token="placeholder",
         refresh_token="placeholder",
     )
-    test_user_2.refresh_token = security.create_refresh_token(test_user_2)
+    # set issue date 10 seconds earlier to test token invalidation without time.sleep
+    now = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=-10)
+    test_user_2.access_token = security.create_access_token(test_user_2, now)
+    test_user_2.refresh_token = security.create_refresh_token(test_user_2, now)
 
     with session.begin():
         db_user = User(

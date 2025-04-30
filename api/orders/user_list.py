@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
 
 from app.repo.orders import OrdersRepoDep
+from app.repo.user import UserRepoDep
 from app.security import get_current_user
 from app.use_cases.order_notifications import (
     NotificationDep,
 )
-from db.db import SessionDep
 from db.user import User
 
 from ..router import api_router
@@ -17,13 +17,13 @@ __all__ = "get_profile_orders"
 
 
 async def _authenticate(
-    session: SessionDep, token: Annotated[str | None, Query()] = None
+    user_repo: UserRepoDep, token: Annotated[str | None, Query()] = None
 ) -> User | None:
     if token is None:
         return None
 
     try:
-        user = await get_current_user(session, token)
+        user = await get_current_user(user_repo, token)
     except HTTPException:  # catch 403
         return None
 

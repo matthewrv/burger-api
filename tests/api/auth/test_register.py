@@ -1,3 +1,4 @@
+from fastapi import status
 from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
@@ -21,6 +22,10 @@ def test_register(
         },
     )
     assert response.status_code == 200
+    response_body = response.json()
+    assert "accessToken" in response_body
+    register_access_token = response_body["accessToken"]
+    assert "refreshToken" in response_body
 
     with session.begin():
         users = session.exec(select(User)).all()
@@ -30,3 +35,16 @@ def test_register(
         user = users[0]
         assert user.email == sample_user_data.email
         assert user.name == sample_user_data.name
+
+    # assert register access token is valid
+    response = client.get(
+        "/api/auth/user", headers={"Authorization": register_access_token}
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    # assert user can login after registration
+    response = client.post(
+        "/api/auth/login",
+        json={"email": sample_user_data.email, "password": sample_user_data.password},
+    )
+    assert response.status_code == status.HTTP_200_OK
