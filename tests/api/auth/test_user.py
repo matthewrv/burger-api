@@ -4,16 +4,14 @@ import pytest
 from fastapi.testclient import TestClient
 from snapshottest.pytest import PyTestSnapshotTest
 
-from app import security
 from tests.conftest import SampleUser
 
 
 def test_get_user(
     client: TestClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
 ) -> None:
-    token = security.create_access_token(test_user)
     response = client.get(
-        "/api/auth/user", headers={"Authorization": f"Bearer {token}"}
+        "/api/auth/user", headers={"Authorization": f"Bearer {test_user.access_token}"}
     )
     assert response.status_code == 200
     snapshot.assert_match(response.json())
@@ -34,9 +32,10 @@ def test_update_user_happy_path(
     body: dict[str, typing.Any],
     remain_authenticated: bool,
 ) -> None:
-    token = security.create_access_token(test_user)
     response = client.patch(
-        "/api/auth/user", headers={"Authorization": f"Bearer {token}"}, json=body
+        "/api/auth/user",
+        headers={"Authorization": f"Bearer {test_user.access_token}"},
+        json=body,
     )
 
     assert response.status_code == 200
@@ -44,7 +43,7 @@ def test_update_user_happy_path(
 
     response = client.get(
         "/api/auth/user",
-        headers={"Authorization": f"Bearer {token}"},
+        headers={"Authorization": f"Bearer {test_user.access_token}"},
     )
     if remain_authenticated:
         assert response.status_code == 200
@@ -60,9 +59,10 @@ def test_update_user_email_registered(
 ) -> None:
     body = {"email": test_user_2.email}
 
-    token = security.create_access_token(test_user)
     response = client.patch(
-        "/api/auth/user", headers={"Authorization": f"Bearer {token}"}, json=body
+        "/api/auth/user",
+        headers={"Authorization": f"Bearer {test_user.access_token}"},
+        json=body,
     )
 
     assert response.status_code == 400

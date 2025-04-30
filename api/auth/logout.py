@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 
+from app.repo.user import UserRepoDep
 from app.security import UserByRefreshTokenDep
-from db.db import SessionDep
-from db.utils import utc_now
 
 from .router import auth_router
 
@@ -16,9 +15,6 @@ class LogoutResponse(BaseModel):
 
 
 @auth_router.post("/logout")
-async def logout(db_user: UserByRefreshTokenDep, db: SessionDep) -> LogoutResponse:
-    with db.begin():
-        db_user.refresh_token_hash = None
-        db_user.logout_at = utc_now()
-
+async def logout(user: UserByRefreshTokenDep, user_repo: UserRepoDep) -> LogoutResponse:
+    user_repo.logout_user(user)
     return LogoutResponse(success=True)

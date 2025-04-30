@@ -7,11 +7,9 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
-from sqlmodel import Session, select
 
-from db.db import SessionDep
+from app.repo.user import UserRepoDep
 from db.user import User
-from db.utils import utc_now
 
 from .config import settings
 
@@ -55,24 +53,26 @@ class UserLike(typing.Protocol):
     email: str
 
 
-def create_access_token(user: UserLike) -> str:
+def create_access_token(user: UserLike, now: datetime | None = None) -> str:
     expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    return create_token(user, expires_delta)
+    return create_token(user, expires_delta, now)
 
 
-def create_refresh_token(user: UserLike) -> str:
+def create_refresh_token(user: UserLike, now: datetime | None = None) -> str:
     expires_delta = timedelta(hours=REFRESH_TOKEN_EXPIRE_HOURS)
-    return create_token(user, expires_delta)
+    return create_token(user, expires_delta, now)
 
 
-def create_token(user: UserLike, expires_delta: timedelta) -> str:
-    now = datetime.now(timezone.utc)
+def create_token(
+    user: UserLike, expires_delta: timedelta, now: datetime | None = None
+) -> str:
+    now = now or datetime.now(timezone.utc)
     to_encode = {"sub": user.email, "exp": now + expires_delta, "iat": now}
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
-async def get_current_user(db: SessionDep, token: TokenDep) -> User:
+async def get_current_user(user_repo: UserRepoDep, token: TokenDep) -> User:
     try:
         payload = jwt.decode(
             token,
@@ -84,8 +84,7 @@ async def get_current_user(db: SessionDep, token: TokenDep) -> User:
     except jwt.InvalidTokenError:
         raise_auth_exception()
 
-    with db.begin():
-        user = db.exec(select(User).where(User.email == email)).first()
+    user = user_repo.get_user_by_email(email)
 
     if user is None or user.refresh_token_hash is None:
         raise_auth_exception()
@@ -105,9 +104,9 @@ class RequestWithRefreshToken(BaseModel):
 
 
 async def validate_refresh_token(
-    db: SessionDep, request: RequestWithRefreshToken
+    user_repo: UserRepoDep, request: RequestWithRefreshToken
 ) -> User:
-    db_user = await get_current_user(db, request.token)
+    db_user = await get_current_user(user_repo, request.token)
     expected_hash = db_user.refresh_token_hash
 
     is_valid_refresh_token = expected_hash and verify_password(
@@ -121,16 +120,3 @@ async def validate_refresh_token(
 
 UserDep = Annotated[User, Depends(get_current_user)]
 UserByRefreshTokenDep = Annotated[User, Depends(validate_refresh_token)]
-
-
-def rotate_user_tokens(db: Session, user: User) -> tuple[str, str]:
-    # remove microseconds since we do not store them in JWT
-    now = utc_now().replace(microsecond=0)
-    refresh_token = create_refresh_token(user)
-    access_token = create_access_token(user)
-
-    with db.begin():
-        user.logout_at = now
-        user.refresh_token_hash = get_password_hash(refresh_token)
-
-    return access_token, refresh_token

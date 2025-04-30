@@ -1,6 +1,5 @@
-from app import security
+from app.repo.user import UserRepoDep
 from app.security import UserByRefreshTokenDep
-from db.db import SessionDep
 
 from .models import AuthResponse, User
 from .router import auth_router
@@ -8,9 +7,9 @@ from .router import auth_router
 
 @auth_router.post("/token")
 async def update_access_token(
-    user: UserByRefreshTokenDep, db: SessionDep
+    user: UserByRefreshTokenDep, user_repo: UserRepoDep
 ) -> AuthResponse:
-    access_token, refresh_token = security.rotate_user_tokens(db, user)
+    access_token, refresh_token = user_repo.rotate_user_tokens(user)
 
     return AuthResponse(
         success=True,

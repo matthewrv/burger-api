@@ -1,10 +1,8 @@
 from fastapi import HTTPException, status
 from pydantic import BaseModel
-from sqlmodel import select
 
 from app import security
-from db.db import SessionDep
-from db.user import User as DbUser
+from app.repo.user import UserRepoDep
 
 from .models import AuthResponse, User
 from .router import auth_router
@@ -18,9 +16,8 @@ class LoginRequest(BaseModel):
 
 
 @auth_router.post("/login")
-async def login(request: LoginRequest, db: SessionDep) -> AuthResponse:
-    with db.begin():
-        user = db.exec(select(DbUser).where(DbUser.email == request.email)).first()
+async def login(request: LoginRequest, user_repo: UserRepoDep) -> AuthResponse:
+    user = user_repo.get_user_by_email(request.email)
 
     if not user:
         raise HTTPException(
@@ -34,7 +31,7 @@ async def login(request: LoginRequest, db: SessionDep) -> AuthResponse:
             detail="Incorrect username or password",
         )
 
-    access_token, refresh_token = security.rotate_user_tokens(db, user)
+    access_token, refresh_token = user_repo.rotate_user_tokens(user)
 
     return AuthResponse(
         success=True,

@@ -1,3 +1,4 @@
+from fastapi import status
 from fastapi.testclient import TestClient
 from snapshottest.pytest import PyTestSnapshotTest
 
@@ -15,6 +16,14 @@ def test_login_happy_path(
     response_json = response.json()
     assert response_json.keys() == {"refreshToken", "accessToken", "user", "success"}
     snapshot.assert_match(response_json["user"])
+
+    assert "accessToken" in response_json
+    access_token = response_json["accessToken"]
+    assert "refreshToken" in response_json
+
+    # assert access token is valid
+    response = client.get("/api/auth/user", headers={"Authorization": access_token})
+    assert response.status_code == status.HTTP_200_OK
 
 
 def test_login_invalid_password(
