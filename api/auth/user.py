@@ -31,7 +31,7 @@ async def patch_user(
     user_repo: UserRepoDep,
 ) -> PatchUserResponse:
     try:
-        user = user_repo.update_user(user, update_user_request)
+        user = await user_repo.update_user(user, update_user_request)
         return PatchUserResponse(
             success=True, user=User.model_validate(user, from_attributes=True)
         )

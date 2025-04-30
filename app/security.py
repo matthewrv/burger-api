@@ -84,7 +84,7 @@ async def get_current_user(user_repo: UserRepoDep, token: TokenDep) -> User:
     except jwt.InvalidTokenError:
         raise_auth_exception()
 
-    user = user_repo.get_user_by_email(email)
+    user = await user_repo.get_user_by_email(email)
 
     if user is None or user.refresh_token_hash is None:
         raise_auth_exception()

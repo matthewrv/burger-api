@@ -12,10 +12,13 @@ __all__ = ("IngredientsRepo", "IngredientsRepoDep")
 
 class IngredientsRepo(BaseRepo):
     @as_transaction
-    def get_ingredients_by_ids(self, ingredient_ids: list[UUID4]) -> list[Ingredient]:
-        ingredients = self._session.exec(
+    async def get_ingredients_by_ids(
+        self, ingredient_ids: list[UUID4]
+    ) -> list[Ingredient]:
+        result = await self._session.exec(
             select(Ingredient).where(col(Ingredient.id).in_(ingredient_ids))
-        ).all()
+        )
+        ingredients = result.all()
 
         ingredients_map = {ingredient.id: ingredient for ingredient in ingredients}
         return [
@@ -23,8 +26,9 @@ class IngredientsRepo(BaseRepo):
         ]
 
     @as_transaction
-    def get_all_active_ingredients(self) -> Sequence[Ingredient]:
-        return self._session.exec(select(Ingredient)).all()
+    async def get_all_active_ingredients(self) -> Sequence[Ingredient]:
+        result = await self._session.exec(select(Ingredient))
+        return result.all()
 
 
 IngredientsRepoDep = Annotated[IngredientsRepo, Depends(IngredientsRepo)]

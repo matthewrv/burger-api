@@ -16,7 +16,7 @@ async def get_orders(
     orders_repo: OrdersRepoDep,
 ) -> None:
     await websocket.accept()
-    orders = orders_repo.get_recent_orders_full(limit=50)
+    orders = await orders_repo.get_recent_orders_full(limit=50)
     notifier = WebSocketOrderNotifier(websocket, orders)
     await notifier.send_current_state()
     try:

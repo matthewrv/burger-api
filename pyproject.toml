@@ -5,12 +5,15 @@ description = "Backend implementation for Stellar Burgers web-app"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "aiosqlite>=0.21.0",
     "alembic>=1.15.2",
+    "asyncpg>=0.30.0",
     "bcrypt>=4.3.0",
     "fastapi[standard]>=0.115.12",
     "psycopg[binary]>=3.2.6",
     "pydantic-settings>=2.8.1",
     "pyjwt>=2.10.1",
+    "sqlalchemy[asyncio]>=2.0.40",
     "sqlmodel>=0.0.24",
     "websockets>=15.0.1",
 ]
@@ -27,6 +30,7 @@ dev = [
     "pandas>=2.2.3",
     "locust>=2.36.2",
     "pandas-stubs>=2.2.3.250308",
+    "httpx-ws>=0.7.2",
 ]
 
 [tool.mypy]

@@ -1,14 +1,16 @@
+import pytest
 from fastapi import status
-from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from snapshottest.pytest import PyTestSnapshotTest
 
 from tests.conftest import SampleUser
 
 
-def test_login_happy_path(
-    client: TestClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
+@pytest.mark.anyio
+async def test_login_happy_path(
+    client: AsyncClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
 ) -> None:
-    response = client.post(
+    response = await client.post(
         "/api/auth/login",
         json={"email": test_user.email, "password": test_user.password},
     )
@@ -22,14 +24,17 @@ def test_login_happy_path(
     assert "refreshToken" in response_json
 
     # assert access token is valid
-    response = client.get("/api/auth/user", headers={"Authorization": access_token})
+    response = await client.get(
+        "/api/auth/user", headers={"Authorization": access_token}
+    )
     assert response.status_code == status.HTTP_200_OK
 
 
-def test_login_invalid_password(
-    client: TestClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
+@pytest.mark.anyio
+async def test_login_invalid_password(
+    client: AsyncClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
 ) -> None:
-    response = client.post(
+    response = await client.post(
         "/api/auth/login",
         json={"email": test_user.email, "password": "not_actual_password"},
     )
@@ -37,10 +42,11 @@ def test_login_invalid_password(
     snapshot.assert_match(response.json())
 
 
-def test_login_invalid_email(
-    client: TestClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
+@pytest.mark.anyio
+async def test_login_invalid_email(
+    client: AsyncClient, test_user: SampleUser, snapshot: PyTestSnapshotTest
 ) -> None:
-    response = client.post(
+    response = await client.post(
         "/api/auth/login",
         json={"email": "not" + test_user.email, "password": test_user.password},
     )
