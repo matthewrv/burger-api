@@ -20,3 +20,6 @@ db.sqlite
 
 # Dev environment
 .vscode
+
+# Temporary ignore ansible playbooks - WIP
+ansible
