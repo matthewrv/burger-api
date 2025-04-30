@@ -81,3 +81,6 @@ post_commit_hooks = []
 
 [[tool.bumpversion.files]]
 filename = "compose.yaml"
+
+[[tool.bumpversion.files]]
+filename = "uv.lock"
