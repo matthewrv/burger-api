@@ -29,4 +29,4 @@ RUN $pip_install auditwheel patchelf \
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Run the FastAPI application by default
-CMD ["fastapi", "run"]
+CMD ["uvicorn", "--loop", "uvloop", "--log-level", "error", "--no-use-colors", "--no-access-log", "--host", "0.0.0.0", "main:app"]
