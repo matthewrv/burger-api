@@ -11,8 +11,9 @@ __pycache__
 
 # Testing data
 db.sqlite
-*.prof
 postgres-data
+*.prof
+!docs/speedscope/*.prof
 
 # Python virtual environment
 .venv
