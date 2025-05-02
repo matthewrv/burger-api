@@ -10,9 +10,16 @@ services:
       - PYTHONPATH=/app:$${PYTHONPATH}
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     cap_add:
       - SYS_PTRACE
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:8000/api/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   db:
     container_name: burger-db
@@ -24,9 +31,9 @@ services:
     expose:
       - 5432
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 30s
-      timeout: 30s
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
       retries: 5
       start_period: 30s
     volumes:
