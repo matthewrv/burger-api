@@ -132,4 +132,10 @@ class OrdersRepo(BaseRepo):
         )
 
 
-OrdersRepoDep = Annotated[OrdersRepo, Depends(OrdersRepo)]
+async def _get_orders_repo(
+    session: SessionDep, ingredients_repo: IngredientsRepoDep
+) -> OrdersRepo:
+    return OrdersRepo(session, ingredients_repo)
+
+
+OrdersRepoDep = Annotated[OrdersRepo, Depends(_get_orders_repo)]

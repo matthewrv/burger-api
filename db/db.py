@@ -15,7 +15,11 @@ def connect_to_db() -> AsyncEngine:
     return create_async_engine(settings.db_connection)
 
 
-EngineDep = Annotated[AsyncEngine, Depends(connect_to_db)]
+async def get_db_engine() -> AsyncEngine:
+    return connect_to_db()
+
+
+EngineDep = Annotated[AsyncEngine, Depends(get_db_engine)]
 
 
 async def get_session(
