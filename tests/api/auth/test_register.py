@@ -4,7 +4,7 @@ from httpx import AsyncClient
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db.user import User
+from db import User
 from tests.conftest import SampleUser
 
 

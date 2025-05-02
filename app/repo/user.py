@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlmodel import col, select
 
 from app import security
-from db.user import User
+from db import User
 from db.utils import utc_now
 
 from .base_repo import BaseRepo, as_transaction

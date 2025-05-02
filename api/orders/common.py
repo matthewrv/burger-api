@@ -7,7 +7,7 @@ from pydantic import UUID4, BaseModel, Field
 
 from app.repo.orders import OrderFull
 from app.use_cases.order_notifications import OrderListItem, OrderSubscriber
-from db.user import User
+from db import User
 
 
 class OrderListItemResponse(BaseModel):

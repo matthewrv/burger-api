@@ -1,7 +1,15 @@
-from sqlmodel import SQLModel
+from sqlmodel import SQLModel  # required for migrations
 
-from .ingredient import Ingredient
-from .order import Order
-from .order_ingredient import OrderIngredient
+from .db import EngineDep, SessionDep, connect_to_db
+from .tables import Ingredient, Order, OrderIngredient, User
 
-__all__ = ("Ingredient", "Order", "OrderIngredient", "SQLModel")
+__all__ = (
+    "Ingredient",
+    "Order",
+    "OrderIngredient",
+    "User",
+    "connect_to_db",
+    "SessionDep",
+    "EngineDep",
+    "SQLModel",
+)

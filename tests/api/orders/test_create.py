@@ -7,8 +7,7 @@ from snapshottest.pytest import PyTestSnapshotTest
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db.ingredient import Ingredient
-from db.order import Order
+from db import Ingredient, Order
 from tests.conftest import SampleUser
 
 

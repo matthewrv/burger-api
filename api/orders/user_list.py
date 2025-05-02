@@ -8,7 +8,7 @@ from app.security import get_current_user
 from app.use_cases.order_notifications import (
     NotificationDep,
 )
-from db.user import User
+from db import User
 
 from ..router import api_router
 from .common import WebSocketOrderNotifier
