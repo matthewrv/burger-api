@@ -33,11 +33,11 @@ async def get_test_app() -> AsyncGenerator[FastAPI]:
     async with engine.connect() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-    def connect_to_db() -> AsyncEngine:
+    async def get_test_db() -> AsyncEngine:
         return engine
 
     app = create_app()
-    app.dependency_overrides[db.connect_to_db] = connect_to_db
+    app.dependency_overrides[db.get_db_engine] = get_test_db
 
     yield app
 
@@ -47,7 +47,7 @@ async def get_test_app() -> AsyncGenerator[FastAPI]:
 @pytest.fixture(name="session")
 async def get_session(app: FastAPI) -> AsyncGenerator[AsyncSession]:
     session_context = asynccontextmanager(db.get_session)
-    engine = app.dependency_overrides[db.connect_to_db]()
+    engine = await app.dependency_overrides[db.get_db_engine]()
     async with session_context(engine) as session:
         yield session
 

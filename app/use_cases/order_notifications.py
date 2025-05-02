@@ -61,4 +61,10 @@ def get_order_notifications() -> OrderNotificationManager:
     return OrderNotificationManager()
 
 
-NotificationDep = Annotated[OrderNotificationManager, Depends(get_order_notifications)]
+async def _get_order_notifications_dep() -> OrderNotificationManager:
+    return get_order_notifications()
+
+
+NotificationDep = Annotated[
+    OrderNotificationManager, Depends(_get_order_notifications_dep)
+]

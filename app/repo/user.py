@@ -7,6 +7,7 @@ from sqlmodel import col, select
 
 from app import security
 from db import User
+from db.db import SessionDep
 from db.utils import utc_now
 
 from .base_repo import BaseRepo, as_transaction
@@ -97,4 +98,8 @@ class UserRepo(BaseRepo):
         return db_user, access_token, refresh_token
 
 
-UserRepoDep = Annotated[UserRepo, Depends(UserRepo)]
+async def _get_user_repo(session: SessionDep) -> UserRepo:
+    return UserRepo(session)
+
+
+UserRepoDep = Annotated[UserRepo, Depends(_get_user_repo)]
