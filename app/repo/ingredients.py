@@ -5,7 +5,7 @@ from pydantic import UUID4
 from sqlmodel import col, select
 
 from app.repo.base_repo import BaseRepo, as_transaction
-from db.ingredient import Ingredient
+from db.tables.ingredient import Ingredient
 
 __all__ = ("IngredientsRepo", "IngredientsRepoDep")
 

@@ -8,10 +8,10 @@ from sqlmodel import col, desc, select
 
 from app.repo.ingredients import IngredientsRepoDep
 from db.db import SessionDep
-from db.ingredient import Ingredient
-from db.order import Order as DbOrder
-from db.order_ingredient import OrderIngredient
-from db.user import User
+from db.tables.ingredient import Ingredient
+from db.tables.order import Order as DbOrder
+from db.tables.order_ingredient import OrderIngredient
+from db.tables.user import User
 
 from .base_repo import BaseRepo, as_transaction
 from .common import Error

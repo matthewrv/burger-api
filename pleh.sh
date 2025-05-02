@@ -11,19 +11,23 @@ PYTHONPATH=$PWD:$PYTHONPATH
 STATUS=0
 
 CONTAINER_NAME=postgres-burger
-DB_NAME=$DB_NAME || `dotenv get DB_NAME`
-DB_USER=$DB_USER ||`dotenv get DB_USER`
-DB_PASSWORD=$DB_PASSWORD ||`dotenv get DB_PASSWORD`
+DB_NAME=$([ "$DB_NAME" != "" ] && echo $DB_NAME || dotenv get DB_NAME)
+DB_USER=$([ "$DB_USER" != "" ] && echo $DB_USER || dotenv get DB_USER)
+DB_PASSWORD=$([ "$DB_PASSWORD" != "" ] && echo $DB_PASSWORD || dotenv get DB_PASSWORD)
+
+echo $DB_NAME
 
 start_env() {
-    docker container start $CONTAINER_NAME || docker container run \
-        --name $CONTAINER_NAME \
-        -p 5432:5432 \
-        -e POSTGRES_DB=${DB_NAME} \
-        -e POSTGRES_USER=${DB_USER} \
-        -e POSTGRES_PASSWORD=${DB_PASSWORD} \
-        -d \
-        postgres:17.4-alpine
+    docker ps -a | grep -q $CONTAINER_NAME \
+        && docker container start $CONTAINER_NAME \
+        || docker container run \
+            --name $CONTAINER_NAME \
+            -p 5432:5432 \
+            -e POSTGRES_DB=${DB_NAME} \
+            -e POSTGRES_USER=${DB_USER} \
+            -e POSTGRES_PASSWORD=${DB_PASSWORD} \
+            -d \
+            postgres:17.4-alpine
 }
 
 stop_env() {

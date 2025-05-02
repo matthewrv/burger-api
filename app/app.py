@@ -6,7 +6,7 @@ from fastapi.middleware import cors
 from sqlmodel import SQLModel
 
 from api import api_router
-from db.db import connect_to_db
+from db import connect_to_db
 
 from .config import settings
 
@@ -14,9 +14,10 @@ from .config import settings
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     engine = connect_to_db()
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     yield
+    await engine.dispose()
 
 
 def create_app() -> FastAPI:

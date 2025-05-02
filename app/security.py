@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
 from app.repo.user import UserRepoDep
-from db.user import User
+from db.tables.user import User
 
 from .config import settings
 
