@@ -15,9 +15,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import security
 from app.app import create_app
-from db import db
-from db.ingredient import Ingredient
-from db.user import User
+from db import Ingredient, User, db
 
 
 @pytest.fixture

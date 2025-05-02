@@ -7,11 +7,9 @@ from pydantic import UUID4, BaseModel, Field
 from sqlmodel import col, desc, select
 
 from app.repo.ingredients import IngredientsRepoDep
+from db import Ingredient, OrderIngredient, User
+from db import Order as DbOrder
 from db.db import SessionDep
-from db.tables.ingredient import Ingredient
-from db.tables.order import Order as DbOrder
-from db.tables.order_ingredient import OrderIngredient
-from db.tables.user import User
 
 from .base_repo import BaseRepo, as_transaction
 from .common import Error
