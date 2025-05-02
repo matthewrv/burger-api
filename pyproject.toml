@@ -36,6 +36,7 @@ dev = [
 [tool.mypy]
 mypy_path = "./stubs/"
 plugins = ["pydantic.mypy"]
+exclude = ["postgres-data"]
 
 follow_imports = "silent"
 warn_redundant_casts = true
@@ -55,6 +56,9 @@ snapshottest = { git = "https://github.com/syrusakbary/snapshottest.git" }
 [tool.pytest.ini_options]
 markers = [
     "now: sets datetime value for util function in db.utils",
+]
+testpaths = [
+    "tests",
 ]
 
 [tool.bumpversion]

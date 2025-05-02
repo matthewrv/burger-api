@@ -25,6 +25,9 @@ RUN $pip_install auditwheel patchelf \
     && auditwheel repair /tmp/py_spy-0.4.0-py2.py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.whl \
     && $pip_install /wheelhouse/*
 
+# Add curl
+RUN apk --no-cache add curl
+
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
