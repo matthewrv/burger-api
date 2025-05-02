@@ -11,7 +11,6 @@ dependencies = [
     "bcrypt>=4.3.0",
     "fastapi[standard]>=0.115.12",
     "psycopg[binary]>=3.2.6",
-    "py-spy>=0.4.0",
     "pydantic-settings>=2.8.1",
     "pyjwt>=2.10.1",
     "sqlalchemy[asyncio]>=2.0.40",

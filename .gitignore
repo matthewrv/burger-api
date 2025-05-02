@@ -11,6 +11,8 @@ __pycache__
 
 # Testing data
 db.sqlite
+*.prof
+postgres-data
 
 # Python virtual environment
 .venv

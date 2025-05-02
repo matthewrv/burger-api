@@ -89,6 +89,10 @@ case $COMMAND in
         cd ..
         ;;
 
+    "profile")
+        py-spy record -o profile.prof --pid $(pgrep fastapi) --format speedscope -d $1
+        ;;
+
     *)
         echo "Usage: pleh.sh <command> [OPTIONS]"
         echo
@@ -102,6 +106,7 @@ case $COMMAND in
         echo "  start-env - Start postgres db for application from .env config"
         echo "  stop-env  - Stop postgres db for application"
         echo "  bench     - Run perfomance benchmark with docs/load.yaml file"
+        echo "  profile   - Run py-spy profiler. Duration of sampling is required"
         ;;
 esac
 
