@@ -4,7 +4,7 @@ phantom:
     - /api/ingredients
   load_profile:
     load_type: rps # schedule load by defining requests per second
-    schedule: line(100, 200, 2m)
+    schedule: line(200, 400, 2m)
   ssl: true
 console:
   enabled: true # enable console output
