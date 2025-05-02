@@ -23,7 +23,7 @@ async def main() -> None:
         data = json.load(f)
 
     engine = connect_to_db()
-    async with engine.connect() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
     async with AsyncSession(engine) as session:
