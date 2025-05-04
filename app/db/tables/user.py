@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import UUID4
 from sqlmodel import UUID, Field, SQLModel
 
-from db.utils import utc_now
+from app.db.utils import utc_now
 
 
 class User(SQLModel, table=True):

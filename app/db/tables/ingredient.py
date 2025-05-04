@@ -1,7 +1,7 @@
 from pydantic import UUID4
 from sqlmodel import Field, SQLModel
 
-from db.utils import random_uuid
+from app.db.utils import random_uuid
 
 
 class Ingredient(SQLModel, table=True):

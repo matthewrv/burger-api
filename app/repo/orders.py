@@ -6,10 +6,9 @@ from fastapi import Depends
 from pydantic import UUID4, BaseModel, Field
 from sqlmodel import col, desc, select
 
+from app.db import Ingredient, OrderIngredient, SessionDep, User
+from app.db import Order as DbOrder
 from app.repo.ingredients import IngredientsRepoDep
-from db import Ingredient, OrderIngredient, User
-from db import Order as DbOrder
-from db.db import SessionDep
 
 from .base_repo import BaseRepo, as_transaction
 from .common import Error
