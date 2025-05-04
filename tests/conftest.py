@@ -15,7 +15,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from app import security
 from app.app import create_app
-from db import Ingredient, User, db
+from app.db import Ingredient, User, db
 
 
 @pytest.fixture
@@ -201,7 +201,7 @@ def mock_utc_now(
     if mark:
         value, *_ = mark.args
         now = datetime.datetime.fromisoformat(value)
-        with unittest.mock.patch("db.utils._utc_now", return_value=now) as mock:
+        with unittest.mock.patch("app.db.utils._utc_now", return_value=now) as mock:
             yield mock
     else:
         yield None

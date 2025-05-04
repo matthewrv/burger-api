@@ -8,8 +8,7 @@ from typing import Any
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db import Ingredient, SQLModel
-from db.db import connect_to_db
+from app.db import Ingredient, SQLModel, connect_to_db
 
 
 def transform_to_db_model(json_model: dict[str, Any]) -> Ingredient:

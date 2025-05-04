@@ -5,7 +5,7 @@ from httpx import AsyncClient
 from snapshottest.pytest import PyTestSnapshotTest
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from db import Ingredient
+from app.db import Ingredient
 
 
 @pytest.mark.anyio

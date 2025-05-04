@@ -4,9 +4,9 @@ from fastapi import Depends
 from pydantic import UUID4
 from sqlmodel import col, select
 
+from app.db import Ingredient
+from app.db.db import SessionDep
 from app.repo.base_repo import BaseRepo, as_transaction
-from db import Ingredient
-from db.db import SessionDep
 
 __all__ = ("IngredientsRepo", "IngredientsRepoDep")
 

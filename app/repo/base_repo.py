@@ -2,7 +2,7 @@ import functools
 import inspect
 from typing import Awaitable, Callable, Concatenate, ParamSpec, TypeVar
 
-from db.db import SessionDep
+from app.db import SessionDep
 
 __all__ = ("BaseRepo", "as_transaction")
 

@@ -5,10 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware import cors
 from sqlmodel import SQLModel
 
-from api import api_router
-from db import connect_to_db
-
+from .api import api_router
 from .config import settings
+from .db import connect_to_db
 
 
 @asynccontextmanager

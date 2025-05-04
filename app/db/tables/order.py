@@ -3,7 +3,7 @@ import datetime
 from pydantic import UUID4
 from sqlmodel import Field, Identity, SQLModel
 
-from db.utils import random_uuid, utc_now
+from app.db.utils import random_uuid, utc_now
 
 
 class Order(SQLModel, table=True):
