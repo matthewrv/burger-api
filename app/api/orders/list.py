@@ -17,6 +17,7 @@ async def get_orders(
 ) -> None:
     await websocket.accept()
     async with WebSocketOrderNotifier(websocket, orders_repo) as notifier:
+        await notifier.send_current_state()
         try:
             order_notifications.sub(notifier)
             while True:

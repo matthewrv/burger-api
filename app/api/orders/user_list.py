@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Query, WebSocket
+from fastapi import Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
 
 from app.db import User
 from app.repo.orders import OrdersRepoDep
@@ -40,13 +40,17 @@ async def get_profile_orders(
     await websocket.accept()
 
     if not user:
-        await websocket.send_json(
-            {"success": False, "message": "Invalid or missing token"}
-        )
-        await websocket.close()
+        try:
+            await websocket.send_json(
+                {"success": False, "message": "Invalid or missing token"}
+            )
+            await websocket.close()
+        except WebSocketDisconnect:
+            pass
         return
 
     async with WebSocketOrderNotifier(websocket, orders_repo, user) as notifier:
+        await notifier.send_current_state()
         try:
             notifications.sub(notifier)
             while True:

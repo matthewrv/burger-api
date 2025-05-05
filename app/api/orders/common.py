@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from typing import Coroutine, Self
 
 from fastapi import WebSocket, WebSocketDisconnect
-from fastapi.websockets import WebSocketState
 from pydantic import UUID4, BaseModel, Field
 
 from app.db import User
@@ -50,9 +49,6 @@ class WebSocketOrderNotifier(OrderSubscriber):
         orders_repo: OrdersRepo,
         user: User | None = None,
     ) -> None:
-        if websocket.state == WebSocketState.DISCONNECTED:
-            raise RuntimeError("WebSocket should be already connected")
-
         self._websocket = websocket
         self._user = user
         self._orders_repo = orders_repo
@@ -93,11 +89,9 @@ class WebSocketOrderNotifier(OrderSubscriber):
             totalToday=today_orders,
         )
 
-        await self._send_current_state()
-
     async def _reset_today_orders(self) -> None:
         self._state.total_today = 0
-        await self._send_current_state()
+        await self.send_current_state()
 
     async def notify(self, new_order: OrderFull) -> None:
         if self._user and self._user.id != new_order.owner_id:
@@ -110,9 +104,8 @@ class WebSocketOrderNotifier(OrderSubscriber):
         self._state.total += 1
         self._state.total_today += 1
 
-        await self._send_current_state()
+        await self.send_current_state()
 
-    async def _send_current_state(self) -> None:
-        if self._websocket.state != WebSocketState.DISCONNECTED:
-            message = self._state.model_dump(mode="json", by_alias=True)
-            await self._websocket.send_json(message)
+    async def send_current_state(self) -> None:
+        message = self._state.model_dump(mode="json", by_alias=True)
+        await self._websocket.send_json(message)
