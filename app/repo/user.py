@@ -81,6 +81,12 @@ class UserRepo(BaseRepo):
 
     @as_transaction
     async def create_user(self, request: CreateUserRequest) -> tuple[User, str, str]:
+        existing_user = await self.get_user_by_email(request.email)
+        if existing_user:
+            raise EmailAlreadyExists(
+                f"Email {request.email} is already associated with an account."
+            )
+
         db_user = User(
             id=uuid.uuid4(),
             name=request.name,
