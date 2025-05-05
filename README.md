@@ -1,6 +1,6 @@
 # Burger API
 
-Бекенд для веб-приложения [Stellar Burgers](https://github.com/matthewrv/react-burger).
+Бекенд для веб-приложения [Stellar Burgers](https://github.com/matthewrv/react-burger) - демо-приложение на котором я пробую и обкатываю технологии.
 
 ⚠️ Work In Progress
 
@@ -13,6 +13,7 @@
 ![WebSockets](https://img.shields.io/badge/websockets-262626?logo=websocket&logoColor=white&style=flat)
 ![Pytest](https://img.shields.io/badge/PyTest-262626?logo=pytest&logoColor=white&style=flat)
 
+Кроме собственно кода проекта рекомендую заглянуть в доки - например, [сюда](https://github.com/matthewrv/burger-api/blob/main/docs/perfomance_improvments.md). Там красивые графики и диаграммы с замерами производительности.
 
 ## Разработка
 
