@@ -4,10 +4,11 @@ from typing import Annotated
 
 from fastapi import Depends
 from pydantic import UUID4, BaseModel, Field
-from sqlmodel import col, desc, select
+from sqlmodel import col, desc, func, select
 
 from app.db import Ingredient, OrderIngredient, SessionDep, User
 from app.db import Order as DbOrder
+from app.db.utils import utc_now
 from app.repo.ingredients import IngredientsRepoDep
 
 from .base_repo import BaseRepo, as_transaction
@@ -68,6 +69,23 @@ class OrdersRepo(BaseRepo):
         return list(orders_map.values())
 
     @as_transaction
+    async def get_orders_count(self) -> tuple[int, int]:
+        total_orders_query = select(func.count()).select_from(DbOrder)
+        total_orders_result = await self._session.exec(total_orders_query)
+        total_orders = total_orders_result.one()
+
+        now = utc_now().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_orders_query = (
+            select(func.count())
+            .select_from(DbOrder)
+            .where(col(DbOrder.created_at) >= now)
+        )
+        today_orders_result = await self._session.exec(today_orders_query)
+        today_orders = today_orders_result.one()
+
+        return (total_orders, today_orders)
+
+    @as_transaction
     async def create_order(
         self, ingredient_ids: list[UUID4], user: User
     ) -> Error | OrderFull:
@@ -78,7 +96,7 @@ class OrdersRepo(BaseRepo):
         if len(ingredients) < len(ingredient_ids):
             return Error(message="unknown ingredients")
 
-        # postgresql identity requires None
+        # postgresql identity column requires None
         assert self._session.bind is not None
         dialect_name = self._session.bind.dialect.name
         number = None if dialect_name == "postgresql" else 0

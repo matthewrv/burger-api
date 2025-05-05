@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import UUID4
 from sqlmodel import UUID, Field, SQLModel
 
-from app.db.utils import utc_now
+from app.db.utils import TZDateTime, utc_now
 
 
 class User(SQLModel, table=True):
@@ -11,12 +11,14 @@ class User(SQLModel, table=True):
     name: str = Field()
     email: str = Field(index=True, unique=True)
     password_hash: str
-    created_at: datetime = Field(default_factory=utc_now)
+    created_at: datetime = Field(default_factory=utc_now, sa_type=TZDateTime)
     updated_at: datetime = Field(
-        default_factory=utc_now, sa_column_kwargs={"onupdate": utc_now}
+        default_factory=utc_now,
+        sa_type=TZDateTime,
+        sa_column_kwargs={"onupdate": utc_now},
     )
     refresh_token_hash: str | None
-    logout_at: datetime | None = None
+    logout_at: datetime | None = Field(None, sa_type=TZDateTime)
 
     def __repr__(self) -> str:
         return f"User(id={self.id}, username={self.name}, email={self.email})"

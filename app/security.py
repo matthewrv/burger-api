@@ -90,9 +90,7 @@ async def get_current_user(user_repo: UserRepoDep, token: TokenDep) -> User:
         raise_auth_exception()
 
     assert isinstance(user, User)  # assert to satisfy mypy
-    issued_at = datetime.fromtimestamp(payload.get("iat"), timezone.utc).replace(
-        tzinfo=None
-    )
+    issued_at = datetime.fromtimestamp(payload.get("iat"), timezone.utc)
     if issued_at and user.logout_at and issued_at < user.logout_at:
         raise_auth_exception()
 

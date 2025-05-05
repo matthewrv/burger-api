@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, Query, WebSocket, WebSocketDisconnect
+from fastapi import Depends, HTTPException, Query, WebSocket
 
 from app.db import User
 from app.repo.orders import OrdersRepoDep
@@ -46,13 +46,10 @@ async def get_profile_orders(
         await websocket.close()
         return
 
-    initial_orders = await orders_repo.get_recent_orders_full(limit=50, user=user)
-    notifier = WebSocketOrderNotifier(websocket, initial_orders, user)
-    await notifier.send_current_state()
-
-    try:
-        notifications.sub(notifier)
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        notifications.unsub(notifier)
+    async with WebSocketOrderNotifier(websocket, orders_repo, user) as notifier:
+        try:
+            notifications.sub(notifier)
+            while True:
+                await websocket.receive_text()
+        finally:
+            notifications.unsub(notifier)

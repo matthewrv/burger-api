@@ -1,4 +1,4 @@
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 
 from app.repo.orders import OrdersRepoDep
 from app.use_cases.order_notifications import NotificationDep
@@ -16,12 +16,10 @@ async def get_orders(
     orders_repo: OrdersRepoDep,
 ) -> None:
     await websocket.accept()
-    orders = await orders_repo.get_recent_orders_full(limit=50)
-    notifier = WebSocketOrderNotifier(websocket, orders)
-    await notifier.send_current_state()
-    try:
-        order_notifications.sub(notifier)
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        order_notifications.unsub(notifier)
+    async with WebSocketOrderNotifier(websocket, orders_repo) as notifier:
+        try:
+            order_notifications.sub(notifier)
+            while True:
+                await websocket.receive_text()
+        finally:
+            order_notifications.unsub(notifier)
