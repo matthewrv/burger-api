@@ -185,7 +185,7 @@ wheels = [
 
 [[package]]
 name = "burger-api"
-version = "0.3.0-dev0"
+version = "0.3.0-rc0"
 source = { virtual = "." }
 dependencies = [
     { name = "aiosqlite" },
