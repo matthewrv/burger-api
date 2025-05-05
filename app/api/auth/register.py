@@ -1,6 +1,7 @@
+from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
-from app.repo.user import CreateUserRequest, UserRepoDep
+from app.repo.user import CreateUserRequest, EmailAlreadyExists, UserRepoDep
 
 from .models import AuthResponse, User
 from .router import auth_router
@@ -18,9 +19,12 @@ class RegisterUserRequest(BaseModel):
 async def register_user(
     user: RegisterUserRequest, user_repo: UserRepoDep
 ) -> AuthResponse:
-    db_user, access_token, refresh_token = await user_repo.create_user(
-        CreateUserRequest.model_validate(user, from_attributes=True)
-    )
+    try:
+        db_user, access_token, refresh_token = await user_repo.create_user(
+            CreateUserRequest.model_validate(user, from_attributes=True)
+        )
+    except EmailAlreadyExists as exc:
+        raise HTTPException(400, detail=str(exc))
 
     return AuthResponse(
         success=True,
