@@ -32,6 +32,6 @@ snapshots["test_create_order_happy_path 3"] = {
             "status": "pending",
         }
     ],
-    "total": 0,
-    "totalToday": 0,
+    "total": 1,
+    "totalToday": 1,
 }

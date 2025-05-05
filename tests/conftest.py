@@ -16,6 +16,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app import security
 from app.app import create_app
 from app.db import Ingredient, User, db
+from app.db.tables.order import Order
+from app.db.tables.order_ingredient import OrderIngredient
 
 
 @pytest.fixture
@@ -172,6 +174,28 @@ async def add_test_ingredients(session: AsyncSession) -> list[Ingredient]:
     return ingredients
 
 
+@pytest.fixture(name="order")
+async def add_sample_order(
+    session: AsyncSession, test_user: User, ingredients: list[Ingredient]
+) -> Order:
+    test_id = uuid.UUID("5296181d-ea21-4dfe-a8b5-c99561fc00f8")
+    async with session.begin():
+        order = Order(
+            id=test_id,
+            name="test order",
+            number=1234,
+            owner_id=test_user.id,
+            status="pending",
+        )
+        order_ingredients = [
+            OrderIngredient(order_id=order.id, ingredient_id=ingredient.id)
+            for ingredient in ingredients
+        ]
+        session.add_all([order, *order_ingredients])
+
+    return order
+
+
 @pytest.fixture(autouse=True)
 def mock_uuid_generation() -> Generator[
     unittest.mock.MagicMock | unittest.mock.AsyncMock
@@ -201,6 +225,7 @@ def mock_utc_now(
     if mark:
         value, *_ = mark.args
         now = datetime.datetime.fromisoformat(value)
+        assert now.tzinfo is not None, "now mark must be timezone aware datetime"
         with unittest.mock.patch("app.db.utils._utc_now", return_value=now) as mock:
             yield mock
     else:
