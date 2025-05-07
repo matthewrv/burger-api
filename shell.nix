@@ -6,6 +6,7 @@ in pkgs.mkShell {
     pkgs.uv
     pkgs.python312Packages.ruff
     pkgs.py-spy
+    pkgs.openssl
   ];
   # required for numpy to work correctly
   LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib/";
