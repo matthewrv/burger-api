@@ -3,10 +3,13 @@ name: Tests
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.py'
   pull_request:
     branches: [ main ]
-  paths:
-    - '**.py'
+    paths:
+      - '**.py'
+
 
 jobs:
   build-and-test:
