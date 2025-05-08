@@ -43,7 +43,7 @@ case $COMMAND in
 
     "start")
         echo "Serving application with uvicorn"
-        uvicorn --loop uvloop --log-level info --use-colors main:app
+        python main.py
         ;;
 
     "format")
@@ -100,7 +100,7 @@ case $COMMAND in
         ;;
 
     "profile")
-        py-spy record -o profile.prof --pid $(pgrep uvicorn) --format speedscope -d $1
+        py-spy record -o profile.prof --pid $(pgrep -f main.py) --format speedscope -d $1
         ;;
 
     *)

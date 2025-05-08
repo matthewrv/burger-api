@@ -18,6 +18,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 FROM python:3.13-alpine
 COPY --from=builder --chown=app:app /app /app
 
+# Prioritize executables in the virtual environment
+ENV PATH="/app/.venv/bin:$PATH"
+
 # Add py-spy
 ENV pip_install="pip3 install --disable-pip-version-check --no-cache-dir"
 ADD https://github.com/benfred/py-spy/releases/download/v0.4.0/py_spy-0.4.0-py2.py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.whl /tmp
@@ -28,8 +31,6 @@ RUN $pip_install auditwheel patchelf \
 # Add curl
 RUN apk --no-cache add curl
 
-# Place executables in the environment at the front of the path
-ENV PATH="/app/.venv/bin:$PATH"
-
 # Run the FastAPI application by default
-CMD ["uvicorn", "--loop", "uvloop", "--log-level", "error", "--no-use-colors", "--no-access-log", "--host", "0.0.0.0", "main:app"]
+WORKDIR /app
+CMD ["python", "main.py"]

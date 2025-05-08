@@ -1,0 +1,9 @@
+services:
+  web:
+    image:            # reset image
+    build: .          # build from sources
+    volumes:
+      - '.:/app'      # mount application sources from debug
+      - '/app/.venv'  # preserve venv created by Dockerfile
+    environment:
+      - DEBUG=true

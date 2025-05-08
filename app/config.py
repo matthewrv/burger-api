@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     db_name: str | None = None
     db_user: str | None = None
     db_password: str | None = None
+    debug: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",
