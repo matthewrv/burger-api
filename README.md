@@ -52,7 +52,7 @@ uv sync
 После чего можно запустить приложение командой:
 
 ```bash
-fastapi dev
+python main.py
 ```
 
 После этого можно дёргать ручки по адресу http://localhost:8000 или через интерфейс swagger по адресу http://localhost:8000/docs
