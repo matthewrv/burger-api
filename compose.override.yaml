@@ -7,3 +7,11 @@ services:
       - '/app/.venv'  # preserve venv created by Dockerfile
     environment:
       - DEBUG=true
+
+  db:
+    ports:
+      - '5432:5432'
+
+  rabbitmq:
+    ports:
+      - '5672:5672'
