@@ -9,16 +9,22 @@ from pydantic import UUID4, BaseModel, Field
 from app.db import User
 from app.db.utils import utc_now
 from app.repo.orders import OrderFull, OrdersRepo
-from app.use_cases.order_notifications import OrderListItem, OrderSubscriber
+from app.use_cases.order_notifications import OrderSubscriber
 
 
-class OrderListItemResponse(BaseModel):
-    id: UUID4
+class OrderListItem(BaseModel):
+    id: UUID4 = Field(alias="_id")
     number: int
     created_at: datetime = Field(alias="createdAt")
     name: str
     ingredients: list[UUID4] = Field(default_factory=list)
     status: str
+
+    @classmethod
+    def from_order_full(
+        cls: type["OrderListItem"], order: OrderFull
+    ) -> "OrderListItem":
+        return cls.model_validate(order, from_attributes=True, by_name=True)
 
 
 class FeedState(BaseModel):
