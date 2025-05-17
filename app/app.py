@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+import aio_pika
 from fastapi import FastAPI
 from fastapi.middleware import cors
 from sqlmodel import SQLModel
@@ -8,15 +9,24 @@ from sqlmodel import SQLModel
 from .api import api_router
 from .config import settings
 from .db import connect_to_db
+from .use_cases import order_notifications
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    engine = connect_to_db()
-    async with engine.begin() as conn:
+    db_engine = connect_to_db()
+    app.state.db = db_engine
+    async with db_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
-    yield
-    await engine.dispose()
+
+    rabbit_connection = await aio_pika.connect(settings.rabbitmq_url)
+    app.state.rabbitmq = rabbit_connection
+
+    async with order_notifications.lifespan(app, rabbit_connection):
+        yield
+
+    await rabbit_connection.close()
+    await db_engine.dispose()
 
 
 def create_app() -> FastAPI:
