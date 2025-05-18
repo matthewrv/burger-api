@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     allow_origins: list[str] | None = None
-    port: int | None = 8000
+    port: int = 8000
     db_connection: str = "sqlite://"
     secret_key: str
     db_name: str | None = None
