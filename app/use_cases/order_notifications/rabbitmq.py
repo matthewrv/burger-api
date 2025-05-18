@@ -11,18 +11,17 @@ ORDER_NOTIFICATIONS_EXCHANGE = "orders"
 
 
 class _OrderNotificationBase:
-    def __init__(self, connection: aio_pika.Connection):
+    def __init__(self, connection: aio_pika.abc.AbstractRobustConnection):
         self._connection = connection
-        self._channel: aio_pika.Channel
-        self._exchange: aio_pika.Exchange
+        self._channel: aio_pika.abc.AbstractRobustChannel
+        self._exchange: aio_pika.abc.AbstractRobustExchange
 
     async def __aenter__(self) -> Self:
-        self._channel = cast(aio_pika.Channel, await self._connection.channel())
-        self._exchange = cast(
-            aio_pika.Exchange,
-            await self._channel.declare_exchange(
-                ORDER_NOTIFICATIONS_EXCHANGE, aio_pika.ExchangeType.FANOUT
-            ),
+        self._channel = cast(
+            aio_pika.abc.AbstractRobustChannel, await self._connection.channel()
+        )
+        self._exchange = await self._channel.declare_exchange(
+            ORDER_NOTIFICATIONS_EXCHANGE, aio_pika.ExchangeType.FANOUT
         )
 
         return self
@@ -52,7 +51,7 @@ class OrderPublisher(_OrderNotificationBase):
 class OrderConsumer(_OrderNotificationBase):
     def __init__(
         self,
-        connection: aio_pika.Connection,
+        connection: aio_pika.abc.AbstractRobustConnection,
         notifications_manager: InMemoryOrderNotificationManager,
     ):
         super().__init__(connection)
