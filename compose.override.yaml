@@ -15,3 +15,7 @@ services:
   rabbitmq:
     ports:
       - '5672:5672'
+
+  prometheus:
+    ports:
+      - '9090:9090'

@@ -12,6 +12,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     cap_add:
       - SYS_PTRACE
     healthcheck:
@@ -44,8 +46,13 @@ services:
     image: "rabbitmq:4.1.0-alpine"
     expose:
       - 5672
-    ports:
-      - '15692:15692'
+      - 15692
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
 
   grafana:
     container_name: burger-grafana
@@ -62,8 +69,6 @@ services:
     image: "prom/prometheus:v3.3.1"
     expose:
       - 9090
-    ports:
-      - '9090:9090'
     volumes:
       - prometheus-data:/prometheus
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
