@@ -12,6 +12,7 @@
 ![Alembic](https://img.shields.io/badge/alembic-262626?logo=alembic&logoColor=white&style=flat)
 ![WebSockets](https://img.shields.io/badge/websockets-262626?logo=websocket&logoColor=white&style=flat)
 ![Pytest](https://img.shields.io/badge/PyTest-262626?logo=pytest&logoColor=white&style=flat)
+![aio_pika](https://img.shields.io/badge/Rabbitmq/aio_pika-262626?style=flat&logo=rabbitmq&logoColor=white)
 
 Кроме собственно кода проекта рекомендую заглянуть в доки - например, [сюда](https://github.com/matthewrv/burger-api/blob/main/docs/perfomance_improvments.md). Там красивые графики и диаграммы с замерами производительности.
 
@@ -43,19 +44,28 @@ uv sync
 ./pleh.sh init-dotenv
 ```
 
-Также для тестов перед первым запуском стоит прогнать скрипт для заполнения базы данных:
+Затем, запустите приложение со всем окружением через docker compose
 
 ```bash
-./pleh.sh script scripts/load_default_ingredients.py
+docker compose up --build -d
 ```
 
-После чего можно запустить приложение командой:
+Приложение запустится в контейнере burger-api с примонтировнными директориями app и scripts и включенным hot-reload. После этого можно дёргать ручки по адресу http://localhost:8000 или через интерфейс swagger по адресу http://localhost:8000/docs.
+
+Если запускаете в первый раз, рекомендуется прогнать скрипт для заполнения базы данных:
 
 ```bash
-python main.py
+docker container exec burger-api ./pleh.sh script scripts/load_default_ingredients.py
 ```
 
-После этого можно дёргать ручки по адресу http://localhost:8000 или через интерфейс swagger по адресу http://localhost:8000/docs
+#### Альтернативный вариант
+
+Если хочется запустить приложение на хосте, а не в контейнере (например, для удобства отладки), можно сделать так:
+
+0. Подправить .env файл заменив в нём доменные имена rabbitmq и базы данных на localhost
+1. Поднять окружение и приложение по предыдущей инструкции
+2. Остановить контейнер burger-api `docker container stop burger-api`
+3. Запустить приложение с помощью команды `python main.py`
 
 ### Pleh.sh
 
@@ -77,10 +87,4 @@ python main.py
 
 # Форматирование кода
 ./pleh.sh format
-```
-
-### Как запустить скрипт в продакшене
-
-```bash
-docker container exec burger-api ./pleh.sh script scripts/load_default_ingredients.py
 ```

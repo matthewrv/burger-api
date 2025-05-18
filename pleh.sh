@@ -36,8 +36,9 @@ stop_env() {
 case $COMMAND in
     "init-dotenv")
         SECRET_KEY=$(openssl rand -hex 32) && \
-            cat .env.example | sed -e "s/SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" | tee .env && \
-            unset SECRET_KEY ||
+            DB_PASSWORD=$(openssl rand -hex 32) && \
+            cat .env.example | sed -e "s/SECRET_KEY=.*/SECRET_KEY=$SECRET_KEY/" | sed -e "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" | tee .env && \
+            unset SECRET_KEY || unset DB_PASSWORD ||
             echo ERROR: openssl not found. Install it first.
         ;;
 
