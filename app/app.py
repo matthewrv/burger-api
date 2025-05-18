@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator, cast
+from typing import AsyncGenerator
 
 import aio_pika
 from fastapi import FastAPI
@@ -19,9 +19,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     async with db_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-    rabbit_connection = cast(
-        aio_pika.Connection, await aio_pika.connect(settings.rabbitmq_url)
-    )
+    rabbit_connection = await aio_pika.connect_robust(settings.rabbitmq_url)
     app.state.rabbitmq = rabbit_connection
 
     async with order_notifications.lifespan(app, rabbit_connection):

@@ -13,7 +13,7 @@ from .rabbitmq import OrderConsumer, OrderPublisher
 
 @asynccontextmanager
 async def lifespan(
-    app: FastAPI, connection: aio_pika.Connection
+    app: FastAPI, connection: aio_pika.abc.AbstractRobustConnection
 ) -> AsyncGenerator[None, None]:
     notifications_manager = InMemoryOrderNotificationManager()
 

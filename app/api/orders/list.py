@@ -6,7 +6,7 @@ from app.use_cases.order_notifications import NotificationDep
 from ..router import api_router
 from .common import WebSocketOrderNotifier
 
-__all__ = "get_orders"
+__all__ = ("get_orders",)
 
 
 @api_router.websocket("/orders/all")

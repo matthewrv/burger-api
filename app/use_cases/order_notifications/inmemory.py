@@ -6,7 +6,7 @@ from app.repo.orders import OrderFull
 
 class OrderSubscriber(abc.ABC):
     @abc.abstractmethod
-    async def notify(self, recent_orders: OrderFull) -> None:
+    async def notify(self, new_order: OrderFull) -> None:
         pass
 
 
