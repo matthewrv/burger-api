@@ -5,6 +5,7 @@ import aio_pika
 
 from app.repo.orders import OrderFull
 
+from .abc import AbstractOrderPublisher
 from .inmemory import InMemoryOrderNotificationManager
 
 ORDER_NOTIFICATIONS_EXCHANGE = "orders"
@@ -39,8 +40,8 @@ class _OrderNotificationBase:
         return OrderFull.model_validate_json(msg.body)
 
 
-class OrderPublisher(_OrderNotificationBase):
-    async def publish_order(self, order: OrderFull) -> None:
+class OrderPublisher(_OrderNotificationBase, AbstractOrderPublisher):
+    async def pub(self, order: OrderFull) -> None:
         try:
             msg = self._prepare_message(order)
             await self._exchange.publish(msg, routing_key="info")

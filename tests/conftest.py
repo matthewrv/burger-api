@@ -18,6 +18,7 @@ from app.app import create_app
 from app.db import Ingredient, User, db
 from app.db.tables.order import Order
 from app.db.tables.order_ingredient import OrderIngredient
+from app.use_cases.order_notifications.inmemory import InMemoryOrderNotificationManager
 
 
 @pytest.fixture
@@ -40,6 +41,10 @@ async def get_test_app() -> AsyncGenerator[FastAPI]:
 
     app = create_app()
     app.dependency_overrides[db.get_db_engine] = get_test_db
+    notification_manager = InMemoryOrderNotificationManager()
+    app.state.notification_manager = notification_manager
+    # replace rabbitmq publisher with inmemory one
+    app.state.order_publisher = notification_manager
 
     yield app
 

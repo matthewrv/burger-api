@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, Request, WebSocket
 
 from app.repo.orders import OrderFull
 
+from .abc import AbstractOrderPublisher
 from .inmemory import InMemoryOrderNotificationManager, OrderSubscriber
 from .rabbitmq import OrderConsumer, OrderPublisher
 
@@ -33,13 +34,13 @@ class NotificationsUseCase:
     def __init__(
         self,
         notifications_manager: InMemoryOrderNotificationManager,
-        order_publisher: OrderPublisher,
+        order_publisher: AbstractOrderPublisher,
     ):
         self._in_process_manager = notifications_manager
         self._inter_proccess_publisher = order_publisher
 
     async def pub(self, order: OrderFull) -> None:
-        await self._inter_proccess_publisher.publish_order(order)
+        await self._inter_proccess_publisher.pub(order)
 
     def sub(self, subscriber: OrderSubscriber) -> None:
         self._in_process_manager.sub(subscriber)

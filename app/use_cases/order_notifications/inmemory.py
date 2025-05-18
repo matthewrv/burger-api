@@ -1,16 +1,11 @@
-import abc
 import logging
 
 from app.repo.orders import OrderFull
 
-
-class OrderSubscriber(abc.ABC):
-    @abc.abstractmethod
-    async def notify(self, new_order: OrderFull) -> None:
-        pass
+from .abc import AbstractOrderPublisher, OrderSubscriber
 
 
-class InMemoryOrderNotificationManager:
+class InMemoryOrderNotificationManager(AbstractOrderPublisher):
     """Broadcasts all created and updated orders to all subscribers within current process."""
 
     def __init__(self) -> None:
