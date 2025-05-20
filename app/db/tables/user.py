@@ -8,8 +8,8 @@ from app.db.utils import TZDateTime, utc_now
 
 class User(SQLModel, table=True):
     id: UUID4 = Field(UUID(as_uuid=True), primary_key=True)
-    name: str = Field()
-    email: str = Field(index=True, unique=True)
+    name: str = Field(max_length=255)
+    email: str = Field(index=True, unique=True, max_length=255)
     password_hash: str
     created_at: datetime = Field(default_factory=utc_now, sa_type=TZDateTime)
     updated_at: datetime = Field(

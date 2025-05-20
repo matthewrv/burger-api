@@ -5,25 +5,31 @@ from sqlalchemy import create_engine, pool
 
 from app.config import settings
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
+# add model's MetaData object here for 'autogenerate' support
 from app.db import SQLModel  # noqa: E402
 
 target_metadata = SQLModel.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+
+def replace_async_driver(connection_string: str) -> str:
+    driver_mapping = {
+        "+asyncpg": "+psycopg",
+        "+aiosqlite": "",
+    }
+
+    for k, v in driver_mapping.items():
+        if k in connection_string:
+            return connection_string.replace(k, v)
+
+    return connection_string
+
+
+def get_connection_string() -> str:
+    return replace_async_driver(settings.db_connection)
 
 
 def run_migrations_offline() -> None:
@@ -38,7 +44,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = settings.db_connection
+    url = get_connection_string()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -58,7 +64,7 @@ def run_migrations_online() -> None:
 
     """
     connectable = create_engine(
-        url=settings.db_connection,
+        url=get_connection_string(),
         poolclass=pool.NullPool,
     )
 
